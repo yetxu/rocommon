@@ -5,7 +5,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"rocommon"
+
+	"github.com/yetxu/rocommon"
 )
 
 type MessageRespond struct {

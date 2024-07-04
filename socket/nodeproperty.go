@@ -2,11 +2,12 @@ package socket
 
 import (
 	"reflect"
-	"rocommon"
 	"sync"
+
+	"github.com/yetxu/rocommon"
 )
 
-/////////////////////////////////////////////NetServerNodeProperty
+// ///////////////////////////////////////////NetServerNodeProperty
 type NetServerNodeProperty struct {
 	name       string //服务器名称 game,game,auth
 	addr       string //包含了ip和port
@@ -64,8 +65,8 @@ func (this *NetServerNodeProperty) GetIndex() int {
 	return this.index
 }
 
-/////////////////////////////////////////////NetContextSet
-//用来记录session数据
+// ///////////////////////////////////////////NetContextSet
+// 用来记录session数据
 type NetContextSet struct {
 	guard   sync.RWMutex //读写锁
 	dataMap map[interface{}]keyValueData
@@ -109,7 +110,7 @@ func (this *NetContextSet) GetContextData(key interface{}) (interface{}, bool) {
 	return nil, false
 }
 
-//根据给定类型获取数据
+// 根据给定类型获取数据
 func (this *NetContextSet) RawContextData(key interface{}, valuePtr interface{}) bool {
 	value, ok := this.GetContextData(key)
 	if !ok {
@@ -129,7 +130,7 @@ func (this *NetContextSet) RawContextData(key interface{}, valuePtr interface{})
 	return true
 }
 
-/////////////////////////////////////////////NetRedisParam
+// ///////////////////////////////////////////NetRedisParam
 type NetRedisParam struct {
 	Pwd     string
 	DBIndex int

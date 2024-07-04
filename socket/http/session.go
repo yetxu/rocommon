@@ -2,7 +2,8 @@ package http
 
 import (
 	"net/http"
-	"rocommon"
+
+	"github.com/yetxu/rocommon"
 )
 
 type ResponseProc interface {

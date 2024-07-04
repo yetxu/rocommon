@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"rocommon"
-	"rocommon/util"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -15,6 +13,8 @@ import (
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/util"
 )
 
 // 第一次服务器启动时间

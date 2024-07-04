@@ -2,13 +2,14 @@ package tcp
 
 import (
 	"net"
-	"rocommon"
-	"rocommon/socket"
-	"rocommon/util"
 	"runtime/debug"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/socket"
+	"github.com/yetxu/rocommon/util"
 )
 
 type SessionIdentify struct {
@@ -23,7 +24,7 @@ func (this *SessionIdentify) SetID(id uint64) {
 	this.id = id
 }
 
-//Session interface def.go
+// Session interface def.go
 type tcpSession struct {
 	sync.Mutex
 	SessionIdentify         //添加到SessionManager中时会设置tcpSession的ID属性
@@ -202,7 +203,7 @@ func (this *tcpSession) Send(msg interface{}) {
 	util.ErrorF("SendLen-sendQueue=%v addr=%v", sendLen, this.conn.LocalAddr())
 }
 
-//服务器进程之前启用ping操作
+// 服务器进程之前启用ping操作
 func (this *tcpSession) HeartBeat(msg interface{}) {
 	//已经关闭
 	if atomic.LoadInt64(&this.closeInt) != 0 {
@@ -318,8 +319,8 @@ func (this *tcpSession) RunSend() {
 	this.exitWg.Done()
 }
 
-///////////////////////
-//acceptor中获取到连接后创建session使用
+// /////////////////////
+// acceptor中获取到连接后创建session使用
 func newTcpSession(c net.Conn, node rocommon.ServerNode, endCallback func()) *tcpSession {
 	session := &tcpSession{
 		conn:        c,

@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/go-redis/redis"
-	"rocommon/socket"
+	"github.com/yetxu/rocommon/socket"
 )
 
 const NIL = redis.Nil

@@ -7,10 +7,11 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"rocommon"
-	"rocommon/socket"
 	"strings"
 	"time"
+
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/socket"
 )
 
 type httpConnector struct {

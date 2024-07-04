@@ -1,18 +1,19 @@
 package websocket
 
 import (
-	"rocommon"
-	"rocommon/socket"
-	tcpBase "rocommon/socket/tcp"
-	"rocommon/util"
 	"runtime/debug"
 	"sync"
 	"sync/atomic"
 
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/socket"
+	tcpBase "github.com/yetxu/rocommon/socket/tcp"
+	"github.com/yetxu/rocommon/util"
+
 	"github.com/gorilla/websocket"
 )
 
-//Session interface def.go
+// Session interface def.go
 type wsSession struct {
 	sync.Mutex
 	tcpBase.SessionIdentify //添加到SessionManager中时会设置tcpSession的ID属性
@@ -183,7 +184,7 @@ func (this *wsSession) Send(msg interface{}) {
 	util.ErrorF("SendLen-sendQueue=%v addr=%v", sendLen, this.conn.LocalAddr())
 }
 
-//服务器进程之前启用ping操作
+// 服务器进程之前启用ping操作
 func (this *wsSession) HeartBeat(msg interface{}) {
 	//已经关闭
 	if atomic.LoadInt64(&this.closeInt) != 0 {

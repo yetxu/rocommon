@@ -5,9 +5,10 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"rocommon"
-	"rocommon/socket"
-	"rocommon/util"
+
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/socket"
+	"github.com/yetxu/rocommon/util"
 
 	"github.com/gorilla/websocket"
 )

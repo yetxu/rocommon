@@ -3,15 +3,16 @@ package tcp
 import (
 	"log"
 	"net"
-	"rocommon"
-	"rocommon/service"
-	"rocommon/socket"
-	"rocommon/util"
 	"sync"
 	"time"
+
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/service"
+	"github.com/yetxu/rocommon/socket"
+	"github.com/yetxu/rocommon/util"
 )
 
-//连接器实现(启动时可能会有多个连接器)
+// 连接器实现(启动时可能会有多个连接器)
 type tcpConnector struct {
 	socket.NetRuntimeTag      //运行状态
 	socket.NetTCPSocketOption //socket相关设置
@@ -100,7 +101,7 @@ func (c *tcpConnector) connect(addr string) {
 	util.InfoF("connector stop...")
 }
 
-//interface ServerNode
+// interface ServerNode
 func (c *tcpConnector) Start() rocommon.ServerNode {
 	c.StopWg.Wait()
 	if c.GetRuneState() {

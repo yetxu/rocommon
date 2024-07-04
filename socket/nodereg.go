@@ -2,8 +2,10 @@ package socket
 
 import (
 	"log"
-	"rocommon"
-	"rocommon/util"
+
+	"github.com/yetxu/rocommon/util"
+
+	"github.com/yetxu/rocommon"
 )
 
 type serverCreate func() rocommon.ServerNode

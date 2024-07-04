@@ -2,12 +2,13 @@ package mysql
 
 import (
 	"database/sql"
-	"github.com/go-sql-driver/mysql"
-	"rocommon"
-	"rocommon/socket"
-	"rocommon/util"
 	"sync"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/socket"
+	"github.com/yetxu/rocommon/util"
 )
 
 type MysqlConnector struct {

@@ -1,14 +1,15 @@
 package socket
 
 import (
-	"rocommon"
-	"rocommon/util"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/util"
 )
 
-//SessionMagExport interface
+// SessionMagExport interface
 type (
 	SessionManager interface {
 		rocommon.SessionMagExport
@@ -36,17 +37,17 @@ func NewNetSessionManager() *NetSessionManager {
 	return mag
 }
 
-//func (this *NetSessionManager) Add(s rocommon.Session) {
-//	id := atomic.AddInt64(&this.sessionIdGen, 1)
-//	atomic.AddInt64(&this.count, 1)
-//	if id >= math.MaxUint32 {
-//		id = 1
-//		atomic.StoreInt64(&this.sessionIdGen, 1)
+//	func (this *NetSessionManager) Add(s rocommon.Session) {
+//		id := atomic.AddInt64(&this.sessionIdGen, 1)
+//		atomic.AddInt64(&this.count, 1)
+//		if id >= math.MaxUint32 {
+//			id = 1
+//			atomic.StoreInt64(&this.sessionIdGen, 1)
+//		}
+//		uuid := this.uuidCreate(id)
+//		s.(interface{ SetID(uint642 uint64) }).SetID(uuid)
+//		this.sessionMap.Store(uuid, s)
 //	}
-//	uuid := this.uuidCreate(id)
-//	s.(interface{ SetID(uint642 uint64) }).SetID(uuid)
-//	this.sessionMap.Store(uuid, s)
-//}
 func (this *NetSessionManager) Add(s rocommon.Session) {
 	uuid := this.genSessionId()
 	s.(interface{ SetID(uint642 uint64) }).SetID(uuid)

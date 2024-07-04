@@ -1,18 +1,19 @@
 package websocket
 
 import (
-	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
-	"rocommon"
-	"rocommon/service"
-	"rocommon/socket"
-	"rocommon/util"
 	"sync"
 	"time"
+
+	"github.com/gorilla/websocket"
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/service"
+	"github.com/yetxu/rocommon/socket"
+	"github.com/yetxu/rocommon/util"
 )
 
-//连接器实现(启动时可能会有多个连接器)
+// 连接器实现(启动时可能会有多个连接器)
 type wsConnector struct {
 	socket.NetRuntimeTag      //运行状态
 	socket.NetTCPSocketOption //socket相关设置

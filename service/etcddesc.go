@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"rocommon"
 	"strconv"
 	"strings"
+
+	"github.com/yetxu/rocommon"
 )
 
 type ETCDServiceDesc struct {
@@ -30,7 +31,7 @@ func (this *ETCDServiceDesc) String() string {
 	return string(data)
 }
 
-//字符串形式返回服务器ID 例如:server/zone/gate#type@zone@index -> gate#1@1@1
+// 字符串形式返回服务器ID 例如:server/zone/gate#type@zone@index -> gate#1@1@1
 func GenServiceID(prop rocommon.ServerNodeProperty) string {
 	return fmt.Sprintf("%s#%d@%d@%d",
 		prop.GetName(),

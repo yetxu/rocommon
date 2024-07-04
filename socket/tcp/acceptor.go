@@ -4,10 +4,11 @@ import (
 	"context"
 	"log"
 	"net"
-	"rocommon"
-	"rocommon/socket"
-	"rocommon/util"
 	"time"
+
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/socket"
+	"github.com/yetxu/rocommon/util"
 )
 
 // 监听器实现(启动时可能会有多个连接器)
@@ -93,6 +94,10 @@ func (this *tcpAcceptor) Stop() {
 	this.CloseAllSession()
 	//等待协程结束
 	this.StopWg.Wait()
+}
+
+func (this *tcpAcceptor) CloseAllSession() {
+
 }
 
 func (this *tcpAcceptor) TypeOfName() string {

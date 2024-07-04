@@ -2,13 +2,14 @@ package mysql
 
 import (
 	"database/sql"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"rocommon"
-	"rocommon/socket"
-	"rocommon/util"
 	"sync"
 	"time"
+
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/socket"
+	"github.com/yetxu/rocommon/util"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type MysqlOrmConnector struct {

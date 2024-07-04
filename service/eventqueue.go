@@ -1,27 +1,28 @@
 package service
 
 import (
-	"rocommon"
-	"rocommon/util"
 	"runtime/debug"
 	"sync"
 	"time"
+
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/util"
 )
 
-////事件处理队列
-//type NetEventQueue interface {
-//	StartQueue() NetEventQueue
-//
-//	StopQueue() NetEventQueue
-//
-//	Wait()
-//
-//	PostCb(callback func())
-//
-//	AttachUpdateModule(update rocommon.UpdateModule)
-//}
+// // 事件处理队列
+// type NetEventQueue interface {
+// 	StartQueue() NetEventQueue
 
-//通用UpdateModule处理
+// 	StopQueue() NetEventQueue
+
+// 	Wait()
+
+// 	PostCb(callback func())
+
+// 	AttachUpdateModule(update rocommon.UpdateModule)
+// }
+
+// 通用UpdateModule处理
 type CommonUpdateModule struct {
 }
 
@@ -43,7 +44,7 @@ func NewEventQueue() rocommon.NetEventQueue {
 	return que
 }
 
-//eventQueue
+// eventQueue
 type eventQueue struct {
 	wg           sync.WaitGroup
 	queList      chan interface{}  //目前用channel来代替 todo...
@@ -67,7 +68,7 @@ var procNumTime time.Time
 var callbackNum int = 0
 var callbackTime time.Duration
 
-//处理回调队列主循环
+// 处理回调队列主循环
 func (this *eventQueue) StartQueue() rocommon.NetEventQueue {
 	this.wg.Add(1)
 	//游戏服务器只有一个协程，机器人测试时会有DATE RACE

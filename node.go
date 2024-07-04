@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-//代表多种类型
+// 代表多种类型
 type ServerNode interface {
 	//开启服务器
 	Start() ServerNode
@@ -28,7 +28,7 @@ type ServerNodeProperty interface {
 	GetIndex() int
 }
 
-//session管理接口
+// session管理接口
 type SessionMagExport interface {
 	GetSession(uint64) Session
 	SessionNum() int
@@ -36,7 +36,7 @@ type SessionMagExport interface {
 	SetUuidCreateKey(genKey int)
 }
 
-//socketOption socketOption.go
+// socketOption socketOption.go
 type TCPSocketOption interface {
 	SetSocketBuff(read, write int, noDelay bool)
 	SetMaxMsgLen(size int)
@@ -47,27 +47,27 @@ type MySqlOption interface {
 	SetConnCount(val int)
 }
 
-//NetProcessorRPC procrpc.go
+// NetProcessorRPC procrpc.go
 type ProcessorRPCBundle interface {
 	SetTransmitter(v MessageProcessor)
 	SetHooker(v EventHook)
 	SetCallback(v EventCallBack)
 }
 
-//tcpConnector暴露的对外接口
+// tcpConnector暴露的对外接口
 type TCPConnector interface {
 	TCPSocketOption
 	SetReconnectTime(delta time.Duration)
 	Session() Session
 }
 
-//tcpAcceptor暴露的对外接口
+// tcpAcceptor暴露的对外接口
 type TCPAcceptor interface {
 	TCPSocketOption
 	SessionMagExport
 }
 
-//NetContextSet nodeproperty.go
+// NetContextSet nodeproperty.go
 type ContextSet interface {
 	//绑定自定义属性
 	SetContextData(key, value interface{}, from string)

@@ -1,8 +1,9 @@
 package service
 
 import (
-	"rocommon"
 	"sync"
+
+	"github.com/yetxu/rocommon"
 )
 
 type MultiServerNode interface {

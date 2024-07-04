@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"io"
 	"reflect"
-	"rocommon"
-	"rocommon/util"
+
+	"github.com/yetxu/rocommon/util"
+
+	"github.com/yetxu/rocommon"
 )
 
 const (
@@ -24,7 +26,7 @@ const (
 
 //var SC_HAND_SHAKE_NTFMsgId = MessageInfoByName("SCHandShakeNtf").ID
 
-///////////////////////
+// /////////////////////
 func ReadMessage(reader io.Reader, maxMsgLen int, aesKey *[]byte) (msg interface{}, msgSeqId uint32, err error) {
 	var msgId, flagId uint16 = 0, 0
 	var msgData []byte
@@ -114,7 +116,7 @@ func ReadMessage(reader io.Reader, maxMsgLen int, aesKey *[]byte) (msg interface
 	return
 }
 
-//消息反序列化
+// 消息反序列化
 func DecodeMessage(id int, data []byte) (interface{}, *rocommon.MessageInfo, error) {
 	msgInfo := rocommon.MessageInfoByID(id)
 	if msgInfo == nil {
@@ -208,7 +210,7 @@ func SendMessage(writer io.Writer, msg interface{}, aesKey *[]byte, maxMsgLen in
 	return err
 }
 
-//消息序列化
+// 消息序列化
 func EncodeMessage(msg interface{}) (data []byte, info *rocommon.MessageInfo, err error) {
 	info = rocommon.MessageInfoByMsg(msg)
 	if info == nil {
@@ -222,7 +224,7 @@ func EncodeMessage(msg interface{}) (data []byte, info *rocommon.MessageInfo, er
 	return
 }
 
-//获取原始包数据(二进制)，不做解析处理
+// 获取原始包数据(二进制)，不做解析处理
 func RecvPackageData(reader io.Reader, maxMsgLen int) (msgId uint16, msgSeqId uint32, msgFlagId uint16, msgData []byte, err error) {
 	bufMsgLen := make([]byte, lenMaxLen)
 	_, err = io.ReadFull(reader, bufMsgLen)

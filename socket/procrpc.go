@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"rocommon"
-	"rocommon/rpc"
-	"rocommon/util"
+
+	"github.com/yetxu/rocommon"
+	"github.com/yetxu/rocommon/rpc"
+	"github.com/yetxu/rocommon/util"
 
 	"github.com/gorilla/websocket"
 )
@@ -46,7 +47,7 @@ func SetProcessorRPC(node rocommon.ServerNode, procName string, callback rocommo
 	}
 }
 
-//加入回调队列或者直接执行回调操作
+// 加入回调队列或者直接执行回调操作
 func QueueEventCall(cb rocommon.EventCallBack) rocommon.EventCallBack {
 	return func(e rocommon.ProcEvent) {
 		if cb != nil {
@@ -65,7 +66,7 @@ func QueueEventCall(cb rocommon.EventCallBack) rocommon.EventCallBack {
 	}
 }
 
-//在会话上执行事件回调，有队列则加入队列，没有就直接执行回调
+// 在会话上执行事件回调，有队列则加入队列，没有就直接执行回调
 func SessionQueueCall(s rocommon.Session, cb func()) {
 	if s == nil {
 		return
@@ -79,7 +80,7 @@ func SessionQueueCall(s rocommon.Session, cb func()) {
 	}
 }
 
-//注册和回掉函数相关操作
+// 注册和回掉函数相关操作
 func init() {
 	RegisterProcessRPC("tcp.pb",
 		func(b rocommon.ProcessorRPCBundle, usercb rocommon.EventCallBack, arg ...interface{}) {
@@ -89,13 +90,13 @@ func init() {
 		})
 }
 
-/////////////////////////////////////////////
-//NetProcessorRPC
+// ///////////////////////////////////////////
+// NetProcessorRPC
 func (this *NetProcessorRPC) GetRPC() *NetProcessorRPC {
 	return this
 }
 
-//收到消息后调用该函数入队列操作
+// 收到消息后调用该函数入队列操作
 func (this *NetProcessorRPC) ProcEvent(e rocommon.ProcEvent) {
 	//todo... hooker callback
 	if this.Hooker != nil {
@@ -137,8 +138,8 @@ func (self *NetProcessorRPC) SetCallback(ecb rocommon.EventCallBack) {
 	self.Callback = ecb
 }
 
-/////////////////////////////////////////////
-//EventHook interface def.go
+// ///////////////////////////////////////////
+// EventHook interface def.go
 type TCPEventHook struct {
 }
 
@@ -158,7 +159,7 @@ func (this *TCPEventHook) InEvent(e rocommon.ProcEvent) rocommon.ProcEvent {
 	return inEvent
 }
 
-//获得发送事件
+// 获得发送事件
 func (this *TCPEventHook) OutEvent(out rocommon.ProcEvent) rocommon.ProcEvent {
 	//todo...
 	handled, err := RPCResloveOutEvent(out)
@@ -173,7 +174,7 @@ func (this *TCPEventHook) OutEvent(out rocommon.ProcEvent) rocommon.ProcEvent {
 	return out
 }
 
-//multiHook 例如game server有多个处理操作
+// multiHook 例如game server有多个处理操作
 type MultiTCPEventHook []rocommon.EventHook
 
 func (this MultiTCPEventHook) InEvent(in rocommon.ProcEvent) rocommon.ProcEvent {
@@ -186,7 +187,7 @@ func (this MultiTCPEventHook) InEvent(in rocommon.ProcEvent) rocommon.ProcEvent 
 	return in
 }
 
-//获得发送事件
+// 获得发送事件
 func (this MultiTCPEventHook) OutEvent(out rocommon.ProcEvent) rocommon.ProcEvent {
 	for _, ev := range this {
 		out = ev.OutEvent(out)
@@ -201,8 +202,8 @@ func NewMultiTCPEventHook(args ...rocommon.EventHook) rocommon.EventHook {
 	return MultiTCPEventHook(args)
 }
 
-//根据收到的消息类型进行过滤处理，例如如果是RecvMsgEvent事件，那么说明经过了protobuf解析，直接返回
-//例如远程过程调用的方式 / RPC消息解析
+// 根据收到的消息类型进行过滤处理，例如如果是RecvMsgEvent事件，那么说明经过了protobuf解析，直接返回
+// 例如远程过程调用的方式 / RPC消息解析
 func RPCResolveInEvent(inEvent rocommon.ProcEvent) (rocommon.ProcEvent, bool, error) {
 	//是接收处理消息
 	if _, ok := inEvent.(*rocommon.RecvMsgEvent); ok {
@@ -218,12 +219,12 @@ func RPCResloveOutEvent(outEvent rocommon.ProcEvent) (bool, error) {
 	return true, nil
 }
 
-/////////////////////////////////////////////
-//MessageProcessor interface def.go
+// ///////////////////////////////////////////
+// MessageProcessor interface def.go
 type TCPMessageProcessor struct {
 }
 
-//recv
+// recv
 func (this *TCPMessageProcessor) OnRecvMsg(s rocommon.Session) (msg interface{}, msgSeqId uint32, err error) {
 	//todo...
 	reader, ok := s.Raw().(io.Reader)
@@ -239,7 +240,7 @@ func (this *TCPMessageProcessor) OnRecvMsg(s rocommon.Session) (msg interface{},
 	return
 }
 
-//send
+// send
 var tmpClient = []byte("client")
 
 func (this *TCPMessageProcessor) OnSendMsg(s rocommon.Session, msg interface{}) (err error) {
@@ -264,8 +265,8 @@ func (this *TCPMessageProcessor) OnSendMsg(s rocommon.Session, msg interface{}) 
 	return
 }
 
-/////////////////////////////////////////////
-//MessageProcessor interface def.go
+// ///////////////////////////////////////////
+// MessageProcessor interface def.go
 type WSMessageProcessor struct {
 }
 
@@ -276,7 +277,7 @@ const (
 	msgFlaglen = 2 //暂定标记，加解密 1表示RSA，2表示AES
 )
 
-//recv
+// recv
 func (this *WSMessageProcessor) OnRecvMsg(s rocommon.Session) (msg interface{}, msgSeqId uint32, err error) {
 	conn, ok := s.Raw().(*websocket.Conn)
 	if !ok || conn == nil {

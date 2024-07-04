@@ -7,12 +7,13 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
-	"rocommon/socket"
-	"rocommon/socket/mysql"
-	"rocommon/util"
 	"strconv"
 	"strings"
 	"syscall"
+
+	"github.com/yetxu/rocommon/socket"
+	"github.com/yetxu/rocommon/socket/mysql"
+	"github.com/yetxu/rocommon/util"
 
 	"github.com/olivere/elastic/v7"
 	"github.com/olivere/elastic/v7/config"
@@ -164,7 +165,7 @@ func GetServiceName() string {
 	return serviceName
 }
 
-//server/gate#type@zone@index -> gate#1@1@1
+// server/gate#type@zone@index -> gate#1@1@1
 func GetLocalServiceID() string {
 	//gate#id@zone@type
 	return fmt.Sprintf("%s#%d@%d@%d", serviceName,
@@ -237,7 +238,7 @@ func initServerConfig(configPath, serverName string) {
 	log.Println("Server yaml config load success:", configPath, serverName)
 }
 
-//返回服务器配置文件
+// 返回服务器配置文件
 func GetServiceConfig() ConfigServerNode {
 	return serviceConfig
 }
