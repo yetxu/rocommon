@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"log"
 	"os"
+	"path"
 	"runtime"
 	"strconv"
 	"sync"
@@ -243,7 +244,7 @@ func writeLog(info *LogStInfo, logLevel int, logFmt string, v ...interface{}) {
 	}
 	//logMu.Lock()
 
-	strbuf := bytes.NewBufferString(file)
+	strbuf := bytes.NewBufferString(path.Base(file))
 	strbuf.WriteString(":")
 	strbuf.WriteString(strconv.Itoa(line))
 	strbuf.WriteString(" ")
