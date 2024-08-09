@@ -112,7 +112,7 @@ func (a *NetProcessorRPC) ReadMsg(session rocommon.Session) (interface{}, uint32
 	if a.MsgRPC != nil {
 		return a.MsgRPC.OnRecvMsg(session)
 	}
-	return nil, 0, errors.New("msgrpc not set!!!")
+	return nil, 0, errors.New("msgrpc not set ")
 }
 
 func (a *NetProcessorRPC) SendMsg(ev rocommon.ProcEvent) error {
@@ -126,16 +126,16 @@ func (a *NetProcessorRPC) SendMsg(ev rocommon.ProcEvent) error {
 	return nil
 }
 
-func (self *NetProcessorRPC) SetTransmitter(mp rocommon.MessageProcessor) {
-	self.MsgRPC = mp
+func (a *NetProcessorRPC) SetTransmitter(mp rocommon.MessageProcessor) {
+	a.MsgRPC = mp
 }
 
-func (self *NetProcessorRPC) SetHooker(ev rocommon.EventHook) {
-	self.Hooker = ev
+func (a *NetProcessorRPC) SetHooker(ev rocommon.EventHook) {
+	a.Hooker = ev
 }
 
-func (self *NetProcessorRPC) SetCallback(ecb rocommon.EventCallBack) {
-	self.Callback = ecb
+func (a *NetProcessorRPC) SetCallback(ecb rocommon.EventCallBack) {
+	a.Callback = ecb
 }
 
 // ///////////////////////////////////////////

@@ -185,7 +185,7 @@ func PanicF(fmt string, v ...interface{}) {
 	panic(v)
 }
 func SpecialF(fmt string, v ...interface{}) {
-	specialWriteLog(uniLogInfo, Info, fmt, v...)
+	specialWriteLog(uniLogInfo, fmt, v...)
 }
 
 func writeLog(info *LogStInfo, logLevel int, logFmt string, v ...interface{}) {
@@ -261,7 +261,7 @@ func writeLog(info *LogStInfo, logLevel int, logFmt string, v ...interface{}) {
 	log.Printf(logFmt, v...)
 }
 
-func specialWriteLog(info *LogStInfo, logLevel int, logFmt string, v ...interface{}) {
+func specialWriteLog(info *LogStInfo, logFmt string, v ...interface{}) {
 	if info.path == "" {
 		return
 	}

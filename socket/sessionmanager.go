@@ -19,11 +19,11 @@ type (
 	}
 
 	NetSessionManager struct {
-		sessionIdGen int64
-		count        int64
-		sessionMap   sync.Map
-		genKey       int
-		timeKey      uint32
+		//sessionIdGen int64
+		count      int64
+		sessionMap sync.Map
+		genKey     int
+		timeKey    uint32
 
 		lastTimeStamp uint64
 		sequence      uint64
@@ -54,7 +54,7 @@ func (a *NetSessionManager) Add(s rocommon.Session) {
 	//util.InfoF("NetSessionManager add uid=%v", uuid)
 	if _, ok := a.sessionMap.Load(uuid); ok {
 		util.ErrorF("NetSessionManager add multiple uid=%v", uuid)
-		panic(nil)
+		panic("")
 	}
 	a.sessionMap.Store(uuid, s)
 }
@@ -93,14 +93,14 @@ func (a *NetSessionManager) SetUuidCreateKey(genKey int) {
 	a.timeKey = uint32(time.Now().UnixNano())
 }
 
-func (a *NetSessionManager) uuidCreate(id int64) uint64 {
-	var uuid uint64 = 0
-	uuid |= uint64(uint64(a.genKey) << 32) //6位
-	uuid |= uint64(id) << 20
-	uuid |= uint64(a.timeKey) & 0xfffff
+// func (a *NetSessionManager) uuidCreate(id int64) uint64 {
+// 	var uuid uint64 = 0
+// 	uuid |= uint64(uint64(a.genKey) << 32) //6位
+// 	uuid |= uint64(id) << 20
+// 	uuid |= uint64(a.timeKey) & 0xfffff
 
-	return uuid
-}
+//		return uuid
+//	}
 func (a *NetSessionManager) genSessionId() uint64 {
 	currentTimeStamp := uint64(time.Now().Unix())
 	if a.lastTimeStamp == 0 {

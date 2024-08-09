@@ -86,11 +86,11 @@ func (a *NetContextSet) SetContextData(key, value interface{}, from string) {
 	}
 
 	if _, ok := a.dataMap[key]; ok {
-		if value == nil {
-			//util.InfoF("ContextData clean key:%v oldValue:%v newValue:%v [%v]", key, data, value, from)
-		} else {
-			//util.FatalF("ContextData exist key:%v oldValue:%v newValue:%v [%v]", key, data, value, from)
-		}
+		// if value != nil {
+		// 	util.InfoF("ContextData clean key:%v oldValue:%v newValue:%v [%v]", key, data, value, from)
+		// } else {
+		// 	util.FatalF("ContextData exist key:%v oldValue:%v newValue:%v [%v]", key, data, value, from)
+		// }
 		a.dataMap[key] = keyValueData{key, value}
 	} else {
 		a.dataMap[key] = keyValueData{key, value}

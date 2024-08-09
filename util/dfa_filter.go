@@ -39,12 +39,12 @@ func newMatchIndex(start, end int) *matchIndex {
 }
 
 // Construct from existing match index object
-func buildMatchIndex(obj *matchIndex) *matchIndex {
-	return &matchIndex{
-		start: obj.start,
-		end:   obj.end,
-	}
-}
+// func buildMatchIndex(obj *matchIndex) *matchIndex {
+// 	return &matchIndex{
+// 		start: obj.start,
+// 		end:   obj.end,
+// 	}
+// }
 
 // dfa util
 type DFAUtil struct {
@@ -112,7 +112,7 @@ func (a *DFAUtil) searcSentence(sentence string) (matchIndexList []*matchIndex) 
 			startsWith = true
 			end += 1
 		} else {
-			if startsWith == true {
+			if startsWith {
 				// Check any sub word is the sensitive word from long to short
 				for index := end - 1; index > start; index-- {
 					if a.searcWord(sentenceRuneList[start:index]) {
