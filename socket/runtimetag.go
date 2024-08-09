@@ -14,26 +14,26 @@ type (
 	}
 )
 
-func (this *NetRuntimeTag) SetCloseFlag(b bool) {
-	this.Lock()
-	defer this.Unlock()
-	this.CloseFlag = b
+func (a *NetRuntimeTag) SetCloseFlag(b bool) {
+	a.Lock()
+	defer a.Unlock()
+	a.CloseFlag = b
 }
 
-func (this *NetRuntimeTag) GetCloseFlag() bool {
-	this.Lock()
-	defer this.Unlock()
-	return this.CloseFlag
+func (a *NetRuntimeTag) GetCloseFlag() bool {
+	a.Lock()
+	defer a.Unlock()
+	return a.CloseFlag
 }
 
-func (this *NetRuntimeTag) SetRuneState(b bool) {
+func (a *NetRuntimeTag) SetRuneState(b bool) {
 	if b {
-		atomic.StoreInt64(&this.runState, 1)
+		atomic.StoreInt64(&a.runState, 1)
 	} else {
-		atomic.StoreInt64(&this.runState, 0)
+		atomic.StoreInt64(&a.runState, 0)
 	}
 }
 
-func (this *NetRuntimeTag) GetRuneState() bool {
-	return atomic.LoadInt64(&this.runState) != 0
+func (a *NetRuntimeTag) GetRuneState() bool {
+	return atomic.LoadInt64(&a.runState) != 0
 }

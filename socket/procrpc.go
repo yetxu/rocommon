@@ -92,36 +92,36 @@ func init() {
 
 // ///////////////////////////////////////////
 // NetProcessorRPC
-func (this *NetProcessorRPC) GetRPC() *NetProcessorRPC {
-	return this
+func (a *NetProcessorRPC) GetRPC() *NetProcessorRPC {
+	return a
 }
 
 // 收到消息后调用该函数入队列操作
-func (this *NetProcessorRPC) ProcEvent(e rocommon.ProcEvent) {
+func (a *NetProcessorRPC) ProcEvent(e rocommon.ProcEvent) {
 	//todo... hooker callback
-	if this.Hooker != nil {
-		e = this.Hooker.InEvent(e) //对不同消息类型进行解析，并进行处理
+	if a.Hooker != nil {
+		e = a.Hooker.InEvent(e) //对不同消息类型进行解析，并进行处理
 	}
 
-	if this.Callback != nil && e != nil {
-		this.Callback(e)
+	if a.Callback != nil && e != nil {
+		a.Callback(e)
 	}
 }
 
-func (this *NetProcessorRPC) ReadMsg(session rocommon.Session) (interface{}, uint32, error) {
-	if this.MsgRPC != nil {
-		return this.MsgRPC.OnRecvMsg(session)
+func (a *NetProcessorRPC) ReadMsg(session rocommon.Session) (interface{}, uint32, error) {
+	if a.MsgRPC != nil {
+		return a.MsgRPC.OnRecvMsg(session)
 	}
 	return nil, 0, errors.New("msgrpc not set!!!")
 }
 
-func (this *NetProcessorRPC) SendMsg(ev rocommon.ProcEvent) error {
+func (a *NetProcessorRPC) SendMsg(ev rocommon.ProcEvent) error {
 	//执行hook
-	if this.Hooker != nil {
-		ev = this.Hooker.OutEvent(ev)
+	if a.Hooker != nil {
+		ev = a.Hooker.OutEvent(ev)
 	}
-	if this.MsgRPC != nil {
-		return this.MsgRPC.OnSendMsg(ev.Session(), ev.Msg())
+	if a.MsgRPC != nil {
+		return a.MsgRPC.OnSendMsg(ev.Session(), ev.Msg())
 	}
 	return nil
 }
@@ -143,7 +143,7 @@ func (self *NetProcessorRPC) SetCallback(ecb rocommon.EventCallBack) {
 type TCPEventHook struct {
 }
 
-func (this *TCPEventHook) InEvent(e rocommon.ProcEvent) rocommon.ProcEvent {
+func (a *TCPEventHook) InEvent(e rocommon.ProcEvent) rocommon.ProcEvent {
 	//todo... important
 	//根据收到的消息类型进行过滤处理，例如如果是RecvMsgEvent事件，那么说明进过了protobuf解析，直接返回
 	//例如远程过程调用的方式
@@ -160,7 +160,7 @@ func (this *TCPEventHook) InEvent(e rocommon.ProcEvent) rocommon.ProcEvent {
 }
 
 // 获得发送事件
-func (this *TCPEventHook) OutEvent(out rocommon.ProcEvent) rocommon.ProcEvent {
+func (a *TCPEventHook) OutEvent(out rocommon.ProcEvent) rocommon.ProcEvent {
 	//todo...
 	handled, err := RPCResloveOutEvent(out)
 	if err != nil {
@@ -177,8 +177,8 @@ func (this *TCPEventHook) OutEvent(out rocommon.ProcEvent) rocommon.ProcEvent {
 // multiHook 例如game server有多个处理操作
 type MultiTCPEventHook []rocommon.EventHook
 
-func (this MultiTCPEventHook) InEvent(in rocommon.ProcEvent) rocommon.ProcEvent {
-	for _, ev := range this {
+func (a MultiTCPEventHook) InEvent(in rocommon.ProcEvent) rocommon.ProcEvent {
+	for _, ev := range a {
 		in = ev.InEvent(in)
 		if in == nil {
 			break
@@ -188,8 +188,8 @@ func (this MultiTCPEventHook) InEvent(in rocommon.ProcEvent) rocommon.ProcEvent 
 }
 
 // 获得发送事件
-func (this MultiTCPEventHook) OutEvent(out rocommon.ProcEvent) rocommon.ProcEvent {
-	for _, ev := range this {
+func (a MultiTCPEventHook) OutEvent(out rocommon.ProcEvent) rocommon.ProcEvent {
+	for _, ev := range a {
 		out = ev.OutEvent(out)
 		if out == nil {
 			break
@@ -225,7 +225,7 @@ type TCPMessageProcessor struct {
 }
 
 // recv
-func (this *TCPMessageProcessor) OnRecvMsg(s rocommon.Session) (msg interface{}, msgSeqId uint32, err error) {
+func (a *TCPMessageProcessor) OnRecvMsg(s rocommon.Session) (msg interface{}, msgSeqId uint32, err error) {
 	//todo...
 	reader, ok := s.Raw().(io.Reader)
 	if !ok || reader == nil {
@@ -243,7 +243,7 @@ func (this *TCPMessageProcessor) OnRecvMsg(s rocommon.Session) (msg interface{},
 // send
 var tmpClient = []byte("client")
 
-func (this *TCPMessageProcessor) OnSendMsg(s rocommon.Session, msg interface{}) (err error) {
+func (a *TCPMessageProcessor) OnSendMsg(s rocommon.Session, msg interface{}) (err error) {
 	util.InfoF("[TCPMessageProcessor] OnSendMsg session=%v msg=%v", s, msg)
 	//todo...
 	writer, ok := s.Raw().(io.Writer)
@@ -278,7 +278,7 @@ const (
 )
 
 // recv
-func (this *WSMessageProcessor) OnRecvMsg(s rocommon.Session) (msg interface{}, msgSeqId uint32, err error) {
+func (a *WSMessageProcessor) OnRecvMsg(s rocommon.Session) (msg interface{}, msgSeqId uint32, err error) {
 	conn, ok := s.Raw().(*websocket.Conn)
 	if !ok || conn == nil {
 		util.InfoF("[WSMessageProcessor] OnRecvMsg err")
@@ -354,7 +354,7 @@ func (this *WSMessageProcessor) OnRecvMsg(s rocommon.Session) (msg interface{}, 
 	return
 }
 
-func (this *WSMessageProcessor) OnSendMsg(s rocommon.Session, msg interface{}) (err error) {
+func (a *WSMessageProcessor) OnSendMsg(s rocommon.Session, msg interface{}) (err error) {
 	opt := s.Node().(SocketOption)
 
 	conn, ok := s.Raw().(*websocket.Conn)

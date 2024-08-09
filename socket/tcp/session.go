@@ -16,12 +16,12 @@ type SessionIdentify struct {
 	id uint64
 }
 
-func (this *SessionIdentify) ID() uint64 {
-	return this.id
+func (a *SessionIdentify) ID() uint64 {
+	return a.id
 }
 
-func (this *SessionIdentify) SetID(id uint64) {
-	this.id = id
+func (a *SessionIdentify) SetID(id uint64) {
+	a.id = id
 }
 
 // Session interface def.go
@@ -54,77 +54,77 @@ type tcpSession struct {
 	recvPingNum int
 }
 
-func (this *tcpSession) GetSessionOpt() interface{} {
-	return &this.sessionOpt
+func (a *tcpSession) GetSessionOpt() interface{} {
+	return &a.sessionOpt
 }
-func (this *tcpSession) GetSessionOptFlag() bool {
-	this.optMutex.RLock()
-	defer this.optMutex.RUnlock()
+func (a *tcpSession) GetSessionOptFlag() bool {
+	a.optMutex.RLock()
+	defer a.optMutex.RUnlock()
 
-	return this.sessionOptFlag
+	return a.sessionOptFlag
 }
-func (this *tcpSession) SetSessionOptFlag(flag bool) {
-	this.optMutex.Lock()
-	defer this.optMutex.Unlock()
+func (a *tcpSession) SetSessionOptFlag(flag bool) {
+	a.optMutex.Lock()
+	defer a.optMutex.Unlock()
 
-	this.sessionOptFlag = flag
-}
-
-func (this *tcpSession) setConn(c net.Conn) {
-	this.Lock()
-	defer this.Unlock()
-	this.conn = c
+	a.sessionOptFlag = flag
 }
 
-func (this *tcpSession) GetConn() net.Conn {
-	this.Lock()
-	defer this.Unlock()
-	return this.conn
+func (a *tcpSession) setConn(c net.Conn) {
+	a.Lock()
+	defer a.Unlock()
+	a.conn = c
 }
 
-func (this *tcpSession) Raw() interface{} {
-	return this.GetConn()
+func (a *tcpSession) GetConn() net.Conn {
+	a.Lock()
+	defer a.Unlock()
+	return a.conn
 }
 
-func (this *tcpSession) Node() rocommon.ServerNode {
-	return this.node
+func (a *tcpSession) Raw() interface{} {
+	return a.GetConn()
 }
 
-func (this *tcpSession) GetAES() *[]byte {
-	this.aesMutex.RLock()
-	defer this.aesMutex.RUnlock()
-	return &this.aesStr
+func (a *tcpSession) Node() rocommon.ServerNode {
+	return a.node
 }
 
-func (this *tcpSession) SetAES(aes string) {
-	this.aesMutex.Lock()
-	defer this.aesMutex.Unlock()
-	this.aesStr = []byte(aes)
+func (a *tcpSession) GetAES() *[]byte {
+	a.aesMutex.RLock()
+	defer a.aesMutex.RUnlock()
+	return &a.aesStr
+}
+
+func (a *tcpSession) SetAES(aes string) {
+	a.aesMutex.Lock()
+	defer a.aesMutex.Unlock()
+	a.aesStr = []byte(aes)
 	//log.Println("SetAES:", aes)
 }
 
-func (this *tcpSession) GetHandCode() string {
-	this.handCodeMutex.RLock()
-	defer this.handCodeMutex.RUnlock()
-	return this.handCodeStr
+func (a *tcpSession) GetHandCode() string {
+	a.handCodeMutex.RLock()
+	defer a.handCodeMutex.RUnlock()
+	return a.handCodeStr
 }
 
-func (this *tcpSession) SetHandCode(code string) {
-	this.handCodeMutex.Lock()
-	defer this.handCodeMutex.Unlock()
-	this.handCodeStr = code
+func (a *tcpSession) SetHandCode(code string) {
+	a.handCodeMutex.Lock()
+	defer a.handCodeMutex.Unlock()
+	a.handCodeStr = code
 	//log.Println("SetAES:", aes)
 }
 
-func (this *tcpSession) IncRecvPingNum(incNum int) {
+func (a *tcpSession) IncRecvPingNum(incNum int) {
 	if incNum <= 0 {
-		this.recvPingNum = incNum
+		a.recvPingNum = incNum
 	} else {
-		this.recvPingNum += incNum
+		a.recvPingNum += incNum
 	}
 }
-func (this *tcpSession) RecvPingNum() int {
-	return this.recvPingNum
+func (a *tcpSession) RecvPingNum() int {
+	return a.recvPingNum
 }
 
 var sendQueueMaxLen = 2000
@@ -134,50 +134,50 @@ var sendQueuePool = sync.Pool{
 	},
 }
 
-func (this *tcpSession) Start() {
-	atomic.StoreInt64(&this.closeInt, 0)
+func (a *tcpSession) Start() {
+	atomic.StoreInt64(&a.closeInt, 0)
 
 	//重置发送队列
-	this.sendQueueMaxLen = sendQueueMaxLen
-	if this.node.(rocommon.ServerNodeProperty).GetName() == "gate" {
-		this.sendQueueMaxLen = 200
+	a.sendQueueMaxLen = sendQueueMaxLen
+	if a.node.(rocommon.ServerNodeProperty).GetName() == "gate" {
+		a.sendQueueMaxLen = 200
 	}
-	this.sendQueue = make(chan interface{}, this.sendQueueMaxLen+1)
-	//this.sendQueue = make(chan interface{}, 32) //todo..暂时默认发送队列长度2000
-	//this.sendQueue = make(chan interface{}, sendQueueMaxLen+1) //todo..暂时默认发送队列长度2000
-	//this.sendQueue = sendQueuePool.Get().(chan interface{})
+	a.sendQueue = make(chan interface{}, a.sendQueueMaxLen+1)
+	//a.sendQueue = make(chan interface{}, 32) //todo..暂时默认发送队列长度2000
+	//a.sendQueue = make(chan interface{}, sendQueueMaxLen+1) //todo..暂时默认发送队列长度2000
+	//a.sendQueue = sendQueuePool.Get().(chan interface{})
 
-	this.exitWg.Add(2)
-	//this.node tcpAcceptor
-	this.node.(socket.SessionManager).Add(this) //添加到session管理器中
-	if this.node.TypeOfName() == "tcpAcceptor" {
+	a.exitWg.Add(2)
+	//a.node tcpAcceptor
+	a.node.(socket.SessionManager).Add(a) //添加到session管理器中
+	if a.node.TypeOfName() == "tcpAcceptor" {
 
-		//log.Println("sessionMagNum:", this.node.(socket.SessionManager).SessionNum())
+		//log.Println("sessionMagNum:", a.node.(socket.SessionManager).SessionNum())
 	}
 	go func() {
-		this.exitWg.Wait()
+		a.exitWg.Wait()
 		//结束操作处理
-		close(this.sendQueue)
-		//sendQueuePool.Put(this.sendQueue)
+		close(a.sendQueue)
+		//sendQueuePool.Put(a.sendQueue)
 
-		this.node.(socket.SessionManager).Remove(this)
-		if this.endCallback != nil {
-			this.endCallback()
+		a.node.(socket.SessionManager).Remove(a)
+		if a.endCallback != nil {
+			a.endCallback()
 		}
 		//debug.FreeOSMemory()
 	}()
 
-	go this.RunRecv()
-	go this.RunSend()
+	go a.RunRecv()
+	go a.RunSend()
 }
 
-func (this *tcpSession) Close() {
+func (a *tcpSession) Close() {
 	//已经关闭
-	if ok := atomic.SwapInt64(&this.closeInt, 1); ok != 0 {
+	if ok := atomic.SwapInt64(&a.closeInt, 1); ok != 0 {
 		return
 	}
 
-	conn := this.GetConn()
+	conn := a.GetConn()
 	if conn != nil {
 		conn.Close()
 		//关闭读
@@ -186,27 +186,27 @@ func (this *tcpSession) Close() {
 	//util.InfoF("close session")
 }
 
-func (this *tcpSession) Send(msg interface{}) {
+func (a *tcpSession) Send(msg interface{}) {
 	//已经关闭
-	if atomic.LoadInt64(&this.closeInt) != 0 {
-		util.ErrorF("SendLen-sendQueue closeInt connId=%v", this.id)
+	if atomic.LoadInt64(&a.closeInt) != 0 {
+		util.ErrorF("SendLen-sendQueue closeInt connId=%v", a.id)
 		return
 	}
 
-	//this.sendQueue <- msg
+	//a.sendQueue <- msg
 
-	sendLen := len(this.sendQueue)
+	sendLen := len(a.sendQueue)
 	if sendLen < sendQueueMaxLen {
-		this.sendQueue <- msg
+		a.sendQueue <- msg
 		return
 	}
-	util.ErrorF("SendLen-sendQueue=%v addr=%v", sendLen, this.conn.LocalAddr())
+	util.ErrorF("SendLen-sendQueue=%v addr=%v", sendLen, a.conn.LocalAddr())
 }
 
 // 服务器进程之前启用ping操作
-func (this *tcpSession) HeartBeat(msg interface{}) {
+func (a *tcpSession) HeartBeat(msg interface{}) {
 	//已经关闭
-	if atomic.LoadInt64(&this.closeInt) != 0 {
+	if atomic.LoadInt64(&a.closeInt) != 0 {
 		return
 	}
 
@@ -217,23 +217,23 @@ func (this *tcpSession) HeartBeat(msg interface{}) {
 			delayTimer.Reset(5 * time.Second)
 			select {
 			case <-delayTimer.C:
-				if atomic.LoadInt64(&this.closeInt) != 0 {
+				if atomic.LoadInt64(&a.closeInt) != 0 {
 					break
 				}
 
-				this.Send(tmpMsg)
-				//util.InfoF("Send PingReq id=%v", this.ID())
+				a.Send(tmpMsg)
+				//util.InfoF("Send PingReq id=%v", a.ID())
 			}
 		}
 	}()
 }
 
-func (this *tcpSession) RunRecv() {
+func (a *tcpSession) RunRecv() {
 	//util.DebugF("start RunRecv goroutine")
 	defer func() {
 		//打印奔溃信息
 		//if err := recover(); err != nil {
-		//	this.onError(err)
+		//	a.onError(err)
 		//}
 		//util.InfoF("Stack---:\n%s\n", string(debug.Stack()))
 		//打印堆栈信息
@@ -244,45 +244,45 @@ func (this *tcpSession) RunRecv() {
 
 	recvCount := 0
 	for {
-		msg, seqId, err := this.ReadMsg(this) //procrpc.go
+		msg, seqId, err := a.ReadMsg(a) //procrpc.go
 		if err != nil {
-			util.ErrorF("Readmsg-RunRecv error=%v sessionId=%v", err, this.ID())
+			util.ErrorF("Readmsg-RunRecv error=%v sessionId=%v", err, a.ID())
 
 			//这边需要加锁，避免主线程继续在closInt还未设置成断开时还继续往session写数据，导致多线程冲突
-			//this.Lock()
+			//a.Lock()
 			//做关闭处理，发送数据时已经无法进行发送
-			atomic.StoreInt64(&this.closeInt, 1)
-			//close(this.sendQueue) //用来退出写协程
-			this.sendQueue <- nil //用来退出写协程
-			//this.Unlock()
+			atomic.StoreInt64(&a.closeInt, 1)
+			//close(a.sendQueue) //用来退出写协程
+			a.sendQueue <- nil //用来退出写协程
+			//a.Unlock()
 
 			//抛出错误事件
-			this.ProcEvent(&rocommon.RecvMsgEvent{Sess: this, Message: &rocommon.SessionClosed{}, Err: err})
+			a.ProcEvent(&rocommon.RecvMsgEvent{Sess: a, Message: &rocommon.SessionClosed{}, Err: err})
 
 			//todo...或者通过关闭sendQueue来实现关闭
 			break
 		}
 		//接收数据事件放到队列中(需要放到队列中，否则会有线程冲突)
-		this.ProcEvent(&rocommon.RecvMsgEvent{Sess: this, Message: msg, Err: nil, MsgSeqId: seqId, KvTime: util.GetTimeMilliseconds()})
-		//this.ProcEvent(&rocommon.RecvMsgEvent{Sess: this, Message: msg, Err: nil, MsgSeqId: seqId})
+		a.ProcEvent(&rocommon.RecvMsgEvent{Sess: a, Message: msg, Err: nil, MsgSeqId: seqId, KvTime: util.GetTimeMilliseconds()})
+		//a.ProcEvent(&rocommon.RecvMsgEvent{Sess: a, Message: msg, Err: nil, MsgSeqId: seqId})
 
 		recvCount++
 		if recvCount >= 100 {
 			recvCount = 0
-			//util.InfoF("RunRecv recCount sessionId=%v", this.ID())
+			//util.InfoF("RunRecv recCount sessionId=%v", a.ID())
 		}
 	}
 
-	util.DebugF("exit RunRecv goroutine addr=%v remoteAddr=%v id=%v", this.conn.LocalAddr(), this.conn.RemoteAddr(), this.id)
-	this.exitWg.Done()
+	util.DebugF("exit RunRecv goroutine addr=%v remoteAddr=%v id=%v", a.conn.LocalAddr(), a.conn.RemoteAddr(), a.id)
+	a.exitWg.Done()
 }
 
-func (this *tcpSession) RunSend() {
+func (a *tcpSession) RunSend() {
 	//util.DebugF("start RunSend goroutine")
 	defer func() {
 		//打印奔溃信息
 		//if err := recover(); err != nil {
-		//	this.onError(err)
+		//	a.onError(err)
 		//}
 		//util.InfoF("Stack---:\n%s\n", string(debug.Stack()))
 		//打印堆栈信息
@@ -293,12 +293,12 @@ func (this *tcpSession) RunSend() {
 
 	sendCount := 0
 	//放到另外的队列中c
-	for data := range this.sendQueue {
+	for data := range a.sendQueue {
 		if data == nil {
 			break
 		}
-		err := this.SendMsg(&rocommon.SendMsgEvent{Sess: this, Message: data})
-		//err := this.SendMsg(this, data) //procrpc.go
+		err := a.SendMsg(&rocommon.SendMsgEvent{Sess: a, Message: data})
+		//err := a.SendMsg(a, data) //procrpc.go
 		if err != nil {
 			util.ErrorF("SendMsg RunSend error %v", err)
 			break
@@ -306,17 +306,17 @@ func (this *tcpSession) RunSend() {
 		sendCount++
 		if sendCount >= 100 {
 			sendCount = 0
-			//util.InfoF("RunSend sendCount sessionId=%v", this.ID())
+			//util.InfoF("RunSend sendCount sessionId=%v", a.ID())
 		}
 	}
 
-	util.DebugF("exit RunSend goroutine addr=%v remoteAddr=%v id=%v", this.conn.LocalAddr(), this.conn.RemoteAddr(), this.id)
-	c := this.GetConn()
+	util.DebugF("exit RunSend goroutine addr=%v remoteAddr=%v id=%v", a.conn.LocalAddr(), a.conn.RemoteAddr(), a.id)
+	c := a.GetConn()
 	if c != nil {
 		c.Close()
 	}
 
-	this.exitWg.Done()
+	a.exitWg.Done()
 }
 
 // /////////////////////

@@ -22,46 +22,46 @@ type MysqlOrmConnector struct {
 	reconDur time.Duration
 }
 
-func (this *MysqlOrmConnector) dbConn() *sql.DB {
-	this.dbMutex.RLock()
-	defer this.dbMutex.RUnlock()
+func (a *MysqlOrmConnector) dbConn() *sql.DB {
+	a.dbMutex.RLock()
+	defer a.dbMutex.RUnlock()
 
-	return this.db
+	return a.db
 }
-func (this *MysqlOrmConnector) DbConnORM() *gorm.DB {
-	this.dbMutex.RLock()
-	defer this.dbMutex.RUnlock()
+func (a *MysqlOrmConnector) DbConnORM() *gorm.DB {
+	a.dbMutex.RLock()
+	defer a.dbMutex.RUnlock()
 
-	return this.ormDb
+	return a.ormDb
 }
-func (this *MysqlOrmConnector) IsReady() bool {
-	return this.dbConn() != nil
-}
-
-func (this *MysqlOrmConnector) Operate(cb func(client interface{}) interface{}) interface{} {
-	return cb(this.dbConn())
+func (a *MysqlOrmConnector) IsReady() bool {
+	return a.dbConn() != nil
 }
 
-func (this *MysqlOrmConnector) TypeOfName() string {
+func (a *MysqlOrmConnector) Operate(cb func(client interface{}) interface{}) interface{} {
+	return cb(a.dbConn())
+}
+
+func (a *MysqlOrmConnector) TypeOfName() string {
 	return "MysqlOrmConnector"
 }
 
-func (this *MysqlOrmConnector) SetReconnectDuration(v time.Duration) {
-	this.reconDur = v
+func (a *MysqlOrmConnector) SetReconnectDuration(v time.Duration) {
+	a.reconDur = v
 }
-func (this *MysqlOrmConnector) tryConnect() {
-	tmpOrmDb, err := gorm.Open(mysql.Open(this.GetAddr()), &gorm.Config{})
-	//_, err := mysql.ParseDSN(this.GetAddr())
+func (a *MysqlOrmConnector) tryConnect() {
+	tmpOrmDb, err := gorm.Open(mysql.Open(a.GetAddr()), &gorm.Config{})
+	//_, err := mysql.ParseDSN(a.GetAddr())
 	if err != nil {
-		util.ErrorF("invalid mysql dns=%v err=%v", this.GetAddr(), err)
+		util.ErrorF("invalid mysql dns=%v err=%v", a.GetAddr(), err)
 		return
 	}
 
-	//util.InfoF("connect to mysql name=%v addr=%v dbname=%v", this.GetName(), cfg.Addr, cfg.DBName)
-	this.ormDb = tmpOrmDb
-	tmpDb, err := this.ormDb.DB()
+	//util.InfoF("connect to mysql name=%v addr=%v dbname=%v", a.GetName(), cfg.Addr, cfg.DBName)
+	a.ormDb = tmpOrmDb
+	tmpDb, err := a.ormDb.DB()
 	if err != nil {
-		util.ErrorF("invalid mysql DB() err=%v", this.GetAddr(), err)
+		util.ErrorF("invalid mysql DB() err=%v", a.GetAddr(), err)
 		return
 	}
 
@@ -71,27 +71,27 @@ func (this *MysqlOrmConnector) tryConnect() {
 		return
 	}
 
-	tmpDb.SetMaxIdleConns(int(this.PoolConnCount))
-	tmpDb.SetMaxIdleConns(int(this.PoolConnCount))
+	tmpDb.SetMaxIdleConns(int(a.PoolConnCount))
+	tmpDb.SetMaxIdleConns(int(a.PoolConnCount))
 
-	this.dbMutex.Lock()
-	this.db = tmpDb
-	this.dbMutex.Unlock()
+	a.dbMutex.Lock()
+	a.db = tmpDb
+	a.dbMutex.Unlock()
 }
 
-func (this *MysqlOrmConnector) Start() rocommon.ServerNode {
+func (a *MysqlOrmConnector) Start() rocommon.ServerNode {
 	for {
-		this.tryConnect()
-		if this.reconDur == 0 || this.IsReady() {
+		a.tryConnect()
+		if a.reconDur == 0 || a.IsReady() {
 			break
 		}
-		time.Sleep(this.reconDur)
+		time.Sleep(a.reconDur)
 	}
-	return this
+	return a
 }
 
-func (this *MysqlOrmConnector) Stop() {
-	db := this.dbConn()
+func (a *MysqlOrmConnector) Stop() {
+	db := a.dbConn()
 	if db != nil {
 		db.Close()
 	}

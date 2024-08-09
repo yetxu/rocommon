@@ -20,38 +20,38 @@ type MysqlConnector struct {
 	reconDur time.Duration
 }
 
-func (this *MysqlConnector) dbConn() *sql.DB {
-	this.dbMutex.RLock()
-	defer this.dbMutex.RUnlock()
+func (mysqltor *MysqlConnector) dbConn() *sql.DB {
+	mysqltor.dbMutex.RLock()
+	defer mysqltor.dbMutex.RUnlock()
 
-	return this.db
+	return mysqltor.db
 }
 
-func (this *MysqlConnector) IsReady() bool {
-	return this.dbConn() != nil
+func (mysqltor *MysqlConnector) IsReady() bool {
+	return mysqltor.dbConn() != nil
 }
 
-func (this *MysqlConnector) Operate(cb func(client interface{}) interface{}) interface{} {
-	return cb(this.dbConn())
+func (mysqltor *MysqlConnector) Operate(cb func(client interface{}) interface{}) interface{} {
+	return cb(mysqltor.dbConn())
 }
 
-func (this *MysqlConnector) TypeOfName() string {
+func (mysqltor *MysqlConnector) TypeOfName() string {
 	return "mysqlConnector"
 }
 
-func (this *MysqlConnector) SetReconnectDuration(v time.Duration) {
-	this.reconDur = v
+func (mysqltor *MysqlConnector) SetReconnectDuration(v time.Duration) {
+	mysqltor.reconDur = v
 }
 
-func (this *MysqlConnector) tryConnect() {
-	_, err := mysql.ParseDSN(this.GetAddr())
+func (mysqltor *MysqlConnector) tryConnect() {
+	_, err := mysql.ParseDSN(mysqltor.GetAddr())
 	if err != nil {
-		util.ErrorF("invalid mysql dns=%v err=%v", this.GetAddr(), err)
+		util.ErrorF("invalid mysql dns=%v err=%v", mysqltor.GetAddr(), err)
 		return
 	}
-	//util.InfoF("connect to mysql name=%v addr=%v dbname=%v", this.GetName(), cfg.Addr, cfg.DBName)
+	//util.InfoF("connect to mysql name=%v addr=%v dbname=%v", a.GetName(), cfg.Addr, cfg.DBName)
 
-	db, err := sql.Open("mysql", this.GetAddr())
+	db, err := sql.Open("mysql", mysqltor.GetAddr())
 	if err != nil {
 		util.ErrorF("open mysql database err=%v", err)
 		return
@@ -63,26 +63,26 @@ func (this *MysqlConnector) tryConnect() {
 		return
 	}
 
-	db.SetMaxIdleConns(int(this.PoolConnCount))
-	db.SetMaxIdleConns(int(this.PoolConnCount))
+	db.SetMaxIdleConns(mysqltor.PoolConnCount)
+	//db.SetMaxIdleConns(int(a.PoolConnCount))
 
-	this.dbMutex.Lock()
-	this.db = db
-	this.dbMutex.Unlock()
+	mysqltor.dbMutex.Lock()
+	mysqltor.db = db
+	mysqltor.dbMutex.Unlock()
 }
-func (this *MysqlConnector) Start() rocommon.ServerNode {
+func (mysqltor *MysqlConnector) Start() rocommon.ServerNode {
 	for {
-		this.tryConnect()
-		if this.reconDur == 0 || this.IsReady() {
+		mysqltor.tryConnect()
+		if mysqltor.reconDur == 0 || mysqltor.IsReady() {
 			break
 		}
-		time.Sleep(this.reconDur)
+		time.Sleep(mysqltor.reconDur)
 	}
-	return this
+	return mysqltor
 }
 
-func (this *MysqlConnector) Stop() {
-	db := this.dbConn()
+func (mysqltor *MysqlConnector) Stop() {
+	db := mysqltor.dbConn()
 	if db != nil {
 		db.Close()
 	}

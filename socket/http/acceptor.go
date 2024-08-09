@@ -18,8 +18,8 @@ type tcpKeepAliveListener struct {
 	*net.TCPListener
 }
 
-func (this tcpKeepAliveListener) Accept() (net.Conn, error) {
-	tc, err := this.AcceptTCP()
+func (a tcpKeepAliveListener) Accept() (net.Conn, error) {
+	tc, err := a.AcceptTCP()
 	if err != nil {
 		return nil, err
 	}
@@ -41,50 +41,50 @@ type httpAcceptor struct {
 	listener net.Listener
 }
 
-func (this *httpAcceptor) Port() int {
-	if this.listener == nil {
+func (a *httpAcceptor) Port() int {
+	if a.listener == nil {
 		return 0
 	}
-	return this.listener.Addr().(*net.TCPAddr).Port
+	return a.listener.Addr().(*net.TCPAddr).Port
 }
 
-func (this *httpAcceptor) Start() rocommon.ServerNode {
+func (a *httpAcceptor) Start() rocommon.ServerNode {
 	//ServeHTTP
-	this.sv = &http.Server{Addr: this.GetAddr(), Handler: this}
+	a.sv = &http.Server{Addr: a.GetAddr(), Handler: a}
 
-	ln, err := net.Listen("tcp", this.GetAddr())
+	ln, err := net.Listen("tcp", a.GetAddr())
 	if err != nil {
 		util.ErrorF("http.listen failed=%v", err)
-		return this
+		return a
 	}
 
-	this.listener = ln
+	a.listener = ln
 	util.ErrorF("http.listen success")
 
 	go func() {
-		this.sv.Serve(tcpKeepAliveListener{this.listener.(*net.TCPListener)})
+		a.sv.Serve(tcpKeepAliveListener{a.listener.(*net.TCPListener)})
 		if err != nil && err != http.ErrServerClosed {
-			util.ErrorF("http.listen name=%v failed=%v", this.GetName(), err)
+			util.ErrorF("http.listen name=%v failed=%v", a.GetName(), err)
 		}
 	}()
-	return this
+	return a
 }
 
-func (this *httpAcceptor) Stop() {
+func (a *httpAcceptor) Stop() {
 
 }
 
-func (this *httpAcceptor) TypeOfName() string {
+func (a *httpAcceptor) TypeOfName() string {
 	return "httpAcceptor"
 }
 
-func (this *httpAcceptor) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	sess := newHttpSession(this, req, res)
+func (a *httpAcceptor) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	sess := newHttpSession(a, req, res)
 
 	var msg interface{}
 	var err error
 
-	this.ProcEvent(&rocommon.RecvMsgEvent{Sess: sess, Message: msg})
+	a.ProcEvent(&rocommon.RecvMsgEvent{Sess: sess, Message: msg})
 
 	if sess.err != nil {
 		err = sess.err

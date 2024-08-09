@@ -4,13 +4,13 @@ type MySQLParameter struct {
 	PoolConnCount int
 }
 
-func (this *MySQLParameter) Init() {
-	this.PoolConnCount = 32
+func (a *MySQLParameter) Init() {
+	a.PoolConnCount = 32
 }
 
-func (this *MySQLParameter) SetPassword(v string) {
+func (a *MySQLParameter) SetPassword(v string) {
 }
 
-func (this *MySQLParameter) SetConnCount(val int) {
-	this.PoolConnCount = val
+func (a *MySQLParameter) SetConnCount(val int) {
+	a.PoolConnCount = val
 }

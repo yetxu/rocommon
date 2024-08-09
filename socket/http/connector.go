@@ -20,17 +20,17 @@ type httpConnector struct {
 	socket.NetProcessorRPC //事件处理相关
 }
 
-func (this *httpConnector) Start() rocommon.ServerNode {
-	return this
+func (httptor *httpConnector) Start() rocommon.ServerNode {
+	return httptor
 }
 
-func (this *httpConnector) Stop() {
+func (httptor *httpConnector) Stop() {
 }
 
-func (this *httpConnector) TypeOfName() string {
+func (httptor *httpConnector) TypeOfName() string {
 	return "httpConnector"
 }
-func (this *httpConnector) Request(method, path string, param *rocommon.HTTPRequest) error {
+func (httptor *httpConnector) Request(method, path string, param *rocommon.HTTPRequest) error {
 	codecProc := rocommon.GetHttpCodec(param.ReqCodecName)
 	if method == "POST" {
 		data, err := codecProc.Marshal(param.ReqMsg)
@@ -38,9 +38,9 @@ func (this *httpConnector) Request(method, path string, param *rocommon.HTTPRequ
 			return err
 		}
 
-		url := fmt.Sprintf("http://%s%s", this.GetAddr(), path)
-		if strings.Contains(this.GetAddr(), "http") {
-			url = fmt.Sprintf("%s%s", this.GetAddr(), path)
+		url := fmt.Sprintf("http://%s%s", httptor.GetAddr(), path)
+		if strings.Contains(httptor.GetAddr(), "http") {
+			url = fmt.Sprintf("%s%s", httptor.GetAddr(), path)
 		}
 
 		req, err := http.NewRequest(method, url, data.(io.Reader))
@@ -64,9 +64,9 @@ func (this *httpConnector) Request(method, path string, param *rocommon.HTTPRequ
 		//log.Println("[header]:", resp.Header, resp.Status, resp.Body)
 		return codecProc.Unmarshal(resp.Body, param.ResMsg)
 	} else {
-		url := fmt.Sprintf("http://%s%s", this.GetAddr(), path)
-		if strings.Contains(this.GetAddr(), "http") {
-			url = fmt.Sprintf("%s%s", this.GetAddr(), path)
+		url := fmt.Sprintf("http://%s%s", httptor.GetAddr(), path)
+		if strings.Contains(httptor.GetAddr(), "http") {
+			url = fmt.Sprintf("%s%s", httptor.GetAddr(), path)
 		}
 		req, err := http.NewRequest(method, url, nil)
 		if err != nil {

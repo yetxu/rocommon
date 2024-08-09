@@ -17,52 +17,52 @@ type NetServerNodeProperty struct {
 	index      int //服务器区内的编号
 }
 
-func (this *NetServerNodeProperty) GetName() string {
-	return this.name
+func (a *NetServerNodeProperty) GetName() string {
+	return a.name
 }
 
-func (this *NetServerNodeProperty) SetName(s string) {
-	this.name = s
+func (a *NetServerNodeProperty) SetName(s string) {
+	a.name = s
 }
 
-func (this *NetServerNodeProperty) GetAddr() string {
-	return this.addr
+func (a *NetServerNodeProperty) GetAddr() string {
+	return a.addr
 }
 
-func (this *NetServerNodeProperty) SetAddr(s string) {
-	this.addr = s
+func (a *NetServerNodeProperty) SetAddr(s string) {
+	a.addr = s
 }
 
-func (this *NetServerNodeProperty) SetQueue(v rocommon.NetEventQueue) {
-	this.queue = v
+func (a *NetServerNodeProperty) SetQueue(v rocommon.NetEventQueue) {
+	a.queue = v
 }
 
-func (this *NetServerNodeProperty) Queue() rocommon.NetEventQueue {
-	return this.queue
+func (a *NetServerNodeProperty) Queue() rocommon.NetEventQueue {
+	return a.queue
 }
 
-func (this *NetServerNodeProperty) SetServerType(t int) {
-	this.serverType = t
+func (a *NetServerNodeProperty) SetServerType(t int) {
+	a.serverType = t
 }
 
-func (this *NetServerNodeProperty) ServerType() int {
-	return this.serverType
+func (a *NetServerNodeProperty) ServerType() int {
+	return a.serverType
 }
 
-func (this *NetServerNodeProperty) SetZone(t int) {
-	this.zone = t
+func (a *NetServerNodeProperty) SetZone(t int) {
+	a.zone = t
 }
 
-func (this *NetServerNodeProperty) GetZone() int {
-	return this.zone
+func (a *NetServerNodeProperty) GetZone() int {
+	return a.zone
 }
 
-func (this *NetServerNodeProperty) SetIndex(t int) {
-	this.index = t
+func (a *NetServerNodeProperty) SetIndex(t int) {
+	a.index = t
 }
 
-func (this *NetServerNodeProperty) GetIndex() int {
-	return this.index
+func (a *NetServerNodeProperty) GetIndex() int {
+	return a.index
 }
 
 // ///////////////////////////////////////////NetContextSet
@@ -78,41 +78,41 @@ type keyValueData struct {
 	value interface{}
 }
 
-func (this *NetContextSet) SetContextData(key, value interface{}, from string) {
-	this.guard.Lock()
-	defer this.guard.Unlock()
-	if this.dataMap == nil {
-		this.dataMap = map[interface{}]keyValueData{}
+func (a *NetContextSet) SetContextData(key, value interface{}, from string) {
+	a.guard.Lock()
+	defer a.guard.Unlock()
+	if a.dataMap == nil {
+		a.dataMap = map[interface{}]keyValueData{}
 	}
 
-	if _, ok := this.dataMap[key]; ok {
+	if _, ok := a.dataMap[key]; ok {
 		if value == nil {
 			//util.InfoF("ContextData clean key:%v oldValue:%v newValue:%v [%v]", key, data, value, from)
 		} else {
 			//util.FatalF("ContextData exist key:%v oldValue:%v newValue:%v [%v]", key, data, value, from)
 		}
-		this.dataMap[key] = keyValueData{key, value}
+		a.dataMap[key] = keyValueData{key, value}
 	} else {
-		this.dataMap[key] = keyValueData{key, value}
+		a.dataMap[key] = keyValueData{key, value}
 	}
 }
 
-func (this *NetContextSet) GetContextData(key interface{}) (interface{}, bool) {
-	this.guard.RLock()
-	defer this.guard.RUnlock()
-	if this.dataMap == nil {
-		this.dataMap = map[interface{}]keyValueData{}
+func (a *NetContextSet) GetContextData(key interface{}) (interface{}, bool) {
+	a.guard.RLock()
+	defer a.guard.RUnlock()
+	if a.dataMap == nil {
+		a.dataMap = map[interface{}]keyValueData{}
 	}
 
-	if data, ok := this.dataMap[key]; ok {
+	if data, ok := a.dataMap[key]; ok {
 		return data.value, true
 	}
 	return nil, false
 }
 
 // 根据给定类型获取数据
-func (this *NetContextSet) RawContextData(key interface{}, valuePtr interface{}) bool {
-	value, ok := this.GetContextData(key)
+func (a *NetContextSet) RawContextData(key interface{}, valuePtr interface{}) bool {
+	value, ok := a.GetContextData(key)
 	if !ok {
 		return false
 	}
@@ -136,10 +136,10 @@ type NetRedisParam struct {
 	DBIndex int
 }
 
-func (this *NetRedisParam) SetPwd(pwd string) {
-	this.Pwd = pwd
+func (a *NetRedisParam) SetPwd(pwd string) {
+	a.Pwd = pwd
 }
 
-func (this *NetRedisParam) SetDBIndex(db int) {
-	this.DBIndex = db
+func (a *NetRedisParam) SetDBIndex(db int) {
+	a.DBIndex = db
 }

@@ -50,6 +50,6 @@ func NewNetRedisConnector(addr []string, pwd string, dbIndex, cluster int) Redis
 	return rs
 }
 
-func (this *NetRedisConnector) RedisCli() BaseCmdable {
-	return this.redisCommonCli
+func (a *NetRedisConnector) RedisCli() BaseCmdable {
+	return a.redisCommonCli
 }

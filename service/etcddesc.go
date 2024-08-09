@@ -23,8 +23,8 @@ type ETCDServiceDesc struct {
 	LocalAddr string
 }
 
-func (this *ETCDServiceDesc) String() string {
-	data, err := json.Marshal(this)
+func (a *ETCDServiceDesc) String() string {
+	data, err := json.Marshal(a)
 	if err != nil {
 		return ""
 	}
@@ -132,8 +132,8 @@ type ETCDServiceState struct {
 	SpaceMaxNum int32 //每个线路最大在线人数
 }
 
-func (this ETCDServiceState) String() string {
-	data, err := json.Marshal(this)
+func (a ETCDServiceState) String() string {
+	data, err := json.Marshal(a)
 	if err != nil {
 		return ""
 	}

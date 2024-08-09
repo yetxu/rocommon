@@ -1,6 +1,6 @@
 package rocommon
 
-//连接session
+// 连接session
 type Session interface {
 	//获得net.Conn
 	Raw() interface{}
@@ -26,7 +26,7 @@ type Session interface {
 	RecvPingNum() int
 }
 
-//事件处理队列
+// 事件处理队列
 type NetEventQueue interface {
 	StartQueue() NetEventQueue
 
@@ -39,7 +39,7 @@ type NetEventQueue interface {
 	AttachUpdateModule(update UpdateModule)
 }
 
-//处理主逻辑的更新操作
+// 处理主逻辑的更新操作
 type UpdateModule interface {
 	//传入的时间为毫秒
 	Update(ms uint64)
@@ -50,7 +50,7 @@ type UpdateLogic interface {
 	Update(ms uint64)
 }
 
-//event相关
+// event相关
 type ProcEvent interface {
 	Session() Session //会话信息
 	Msg() interface{} //消息
@@ -58,14 +58,14 @@ type ProcEvent interface {
 	KVTime() uint64   //接受到消息时的时间
 }
 
-//输入返回输出
+// 输入返回输出
 type EventHook interface {
 	InEvent(in ProcEvent) ProcEvent   //获得接收事件
 	OutEvent(out ProcEvent) ProcEvent //获得发送事件
 }
 type EventCallBack func(e ProcEvent)
 
-//消息处理
+// 消息处理
 type MessageProcessor interface {
 	//recv
 	OnRecvMsg(s Session) (interface{}, uint32, error)
@@ -73,8 +73,8 @@ type MessageProcessor interface {
 	OnSendMsg(s Session, msg interface{}) error
 }
 
-///////////////////////////////////
-//recv send event -> ProcEvent
+// /////////////////////////////////
+// recv send event -> ProcEvent
 type RecvMsgEvent struct {
 	Sess     Session
 	Message  interface{}
@@ -83,22 +83,22 @@ type RecvMsgEvent struct {
 	KvTime   uint64
 }
 
-func (this *RecvMsgEvent) Session() Session {
-	return this.Sess
+func (a *RecvMsgEvent) Session() Session {
+	return a.Sess
 }
-func (this *RecvMsgEvent) Msg() interface{} {
-	return this.Message
+func (a *RecvMsgEvent) Msg() interface{} {
+	return a.Message
 }
-func (this *RecvMsgEvent) SeqId() uint32 {
-	return this.MsgSeqId
+func (a *RecvMsgEvent) SeqId() uint32 {
+	return a.MsgSeqId
 }
-func (this *RecvMsgEvent) KVTime() uint64 {
-	return this.KvTime
+func (a *RecvMsgEvent) KVTime() uint64 {
+	return a.KvTime
 }
 
-//接收到消息处理后并回复消息(如果需要回复调用该接口)
-func (this *RecvMsgEvent) Replay(msg interface{}) error {
-	this.Sess.Send(msg)
+// 接收到消息处理后并回复消息(如果需要回复调用该接口)
+func (a *RecvMsgEvent) Replay(msg interface{}) error {
+	a.Sess.Send(msg)
 	return nil
 }
 
@@ -107,16 +107,16 @@ type SendMsgEvent struct {
 	Message interface{}
 }
 
-func (this *SendMsgEvent) Session() Session {
-	return this.Sess
+func (a *SendMsgEvent) Session() Session {
+	return a.Sess
 }
-func (this *SendMsgEvent) Msg() interface{} {
-	return this.Message
+func (a *SendMsgEvent) Msg() interface{} {
+	return a.Message
 }
-func (this *SendMsgEvent) SeqId() uint32 {
+func (a *SendMsgEvent) SeqId() uint32 {
 	return 0
 }
-func (this *SendMsgEvent) KVTime() uint64 {
+func (a *SendMsgEvent) KVTime() uint64 {
 	return 0
 }
 
@@ -124,15 +124,15 @@ type ReplayEvent interface {
 	Replay(msg interface{}) error
 }
 
-//直接发送数据，例如game，发给gate，然后gate直接发送
+// 直接发送数据，例如game，发给gate，然后gate直接发送
 type TransmitPacket struct {
 	MsgData []byte
 	MsgId   uint32
 	SeqId   uint32
 }
 
-///////////////////////////////////
-//http处理
+// /////////////////////////////////
+// http处理
 type HTTPRequest struct {
 	ReqMsg       interface{} //request
 	ResMsg       interface{} //response

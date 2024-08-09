@@ -32,60 +32,60 @@ func newHttpSession(node rocommon.ServerNode, req *http.Request, res http.Respon
 	return sess
 }
 
-func (this *httpSession) Node() rocommon.ServerNode {
-	return this.node
+func (a *httpSession) Node() rocommon.ServerNode {
+	return a.node
 }
-func (this *httpSession) Raw() interface{} {
+func (a *httpSession) Raw() interface{} {
 	return nil
 }
-func (this *httpSession) ID() uint64 {
+func (a *httpSession) ID() uint64 {
 	return 0
 }
 
-func (this *httpSession) GetAES() *[]byte {
+func (a *httpSession) GetAES() *[]byte {
 	return nil
 }
-func (this *httpSession) SetAES(aes string) {
+func (a *httpSession) SetAES(aes string) {
 }
-func (this *httpSession) GetHandCode() string {
+func (a *httpSession) GetHandCode() string {
 	return ""
 }
-func (this *httpSession) IncRecvPingNum(incNum int) {
+func (a *httpSession) IncRecvPingNum(incNum int) {
 }
-func (this *httpSession) RecvPingNum() int {
+func (a *httpSession) RecvPingNum() int {
 	return 0
 }
 
-func (this *httpSession) SetHandCode(code string) {
+func (a *httpSession) SetHandCode(code string) {
 }
-func (this *httpSession) GetSessionOpt() interface{} {
+func (a *httpSession) GetSessionOpt() interface{} {
 	return nil
 }
-func (this *httpSession) GetSessionOptFlag() bool {
+func (a *httpSession) GetSessionOptFlag() bool {
 	return true
 }
-func (this *httpSession) SetSessionOptFlag(flag bool) {
+func (a *httpSession) SetSessionOptFlag(flag bool) {
 }
 
-func (this *httpSession) Close() {
+func (a *httpSession) Close() {
 }
-func (this *httpSession) Match(method, url string) bool {
-	return this.req.Method == method && this.req.URL.Path == url
+func (a *httpSession) Match(method, url string) bool {
+	return a.req.Method == method && a.req.URL.Path == url
 }
-func (this *httpSession) Request() *http.Request {
-	return this.req
+func (a *httpSession) Request() *http.Request {
+	return a.req
 }
-func (this *httpSession) Response() http.ResponseWriter {
-	return this.resp
+func (a *httpSession) Response() http.ResponseWriter {
+	return a.resp
 }
 
-func (this *httpSession) Send(msg interface{}) {
+func (a *httpSession) Send(msg interface{}) {
 	if proc, ok := msg.(ResponseProc); ok {
-		this.err = proc.WriteRespond(this)
-		this.respond = true
+		a.err = proc.WriteRespond(a)
+		a.respond = true
 	} else {
-		this.err = ErrUnknownOperation
+		a.err = ErrUnknownOperation
 	}
 }
 
-func (this *httpSession) HeartBeat(msg interface{}) {}
+func (a *httpSession) HeartBeat(msg interface{}) {}

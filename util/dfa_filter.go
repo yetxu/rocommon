@@ -9,10 +9,10 @@ const (
 // trieNode data structure
 // trieNode itself doesn't have any value. The value is represented on the path
 type trieNode struct {
-	// if this node is the end of a word
+	// if a node is the end of a word
 	isEndOfWord bool
 
-	// the collection of children of this node
+	// the collection of children of a node
 	children map[rune]*trieNode
 }
 
@@ -52,8 +52,8 @@ type DFAUtil struct {
 	root *trieNode
 }
 
-func (this *DFAUtil) insertWord(word []rune) {
-	currNode := this.root
+func (a *DFAUtil) insertWord(word []rune) {
+	currNode := a.root
 	for _, c := range word {
 		if cildNode, exist := currNode.children[c]; !exist {
 			cildNode = newtrieNode()
@@ -68,8 +68,8 @@ func (this *DFAUtil) insertWord(word []rune) {
 }
 
 // Check if there is any word in the trie that starts with the given prefix.
-func (this *DFAUtil) startsWith(prefix []rune) bool {
-	currNode := this.root
+func (a *DFAUtil) startsWith(prefix []rune) bool {
+	currNode := a.root
 	for _, c := range prefix {
 		if cildNode, exist := currNode.children[c]; !exist {
 			return false
@@ -82,8 +82,8 @@ func (this *DFAUtil) startsWith(prefix []rune) bool {
 }
 
 // Searc and make sure if a word is existed in the underlying trie.
-func (this *DFAUtil) searcWord(word []rune) bool {
-	currNode := this.root
+func (a *DFAUtil) searcWord(word []rune) bool {
+	currNode := a.root
 	for _, c := range word {
 		if cildNode, exist := currNode.children[c]; !exist {
 			return false
@@ -98,7 +98,7 @@ func (this *DFAUtil) searcWord(word []rune) bool {
 // Searc a whole sentence and get all the matcing words and their indices
 // Return:
 // A list of all the matc index object
-func (this *DFAUtil) searcSentence(sentence string) (matchIndexList []*matchIndex) {
+func (a *DFAUtil) searcSentence(sentence string) (matchIndexList []*matchIndex) {
 	start, end := 0, 1
 	sentenceRuneList := []rune(sentence)
 
@@ -108,14 +108,14 @@ func (this *DFAUtil) searcSentence(sentence string) (matchIndexList []*matchInde
 		// Check if a sensitive word starts with word range from [start:end)
 		// We find the longest possible path
 		// Then we check any sub word is the sensitive word from long to short
-		if this.startsWith(sentenceRuneList[start:end]) {
+		if a.startsWith(sentenceRuneList[start:end]) {
 			startsWith = true
 			end += 1
 		} else {
 			if startsWith == true {
 				// Check any sub word is the sensitive word from long to short
 				for index := end - 1; index > start; index-- {
-					if this.searcWord(sentenceRuneList[start:index]) {
+					if a.searcWord(sentenceRuneList[start:index]) {
 						matchIndexList = append(matchIndexList, newMatchIndex(start, index-1))
 						break
 					}
@@ -131,7 +131,7 @@ func (this *DFAUtil) searcSentence(sentence string) (matchIndexList []*matchInde
 	// If it's true, we need to check if there is any candidate?
 	if startsWith {
 		for index := end - 1; index > start; index-- {
-			if this.searcWord(sentenceRuneList[start:index]) {
+			if a.searcWord(sentenceRuneList[start:index]) {
 				matchIndexList = append(matchIndexList, newMatchIndex(start, index-1))
 				break
 			}
@@ -144,11 +144,11 @@ func (this *DFAUtil) searcSentence(sentence string) (matchIndexList []*matchInde
 // Judge if input sentence contains some special caracter
 // Return:
 // Matc or not
-func (this *DFAUtil) IsMatch(sentence string) bool {
+func (a *DFAUtil) IsMatch(sentence string) bool {
 	sentence = strings.TrimSpace(sentence)
 	sentence = strings.Replace(sentence, " ", "", -1)
 	sentence = strings.Replace(sentence, "&", "", -1)
-	return len(this.searcSentence(sentence)) > 0
+	return len(a.searcSentence(sentence)) > 0
 }
 
 // Handle sentence. Use specified caracter to replace those sensitive caracters.
@@ -156,12 +156,12 @@ func (this *DFAUtil) IsMatch(sentence string) bool {
 // replaceCh: candidate
 // Return:
 // Sentence after manipulation
-func (this *DFAUtil) HandleWord(sentence string, replaceCh rune) string {
+func (a *DFAUtil) HandleWord(sentence string, replaceCh rune) string {
 	sentence1 := sentence
 	sentence = strings.TrimSpace(sentence)
 	sentence = strings.Replace(sentence, " ", "", -1)
 	sentence = strings.Replace(sentence, "&", "", -1)
-	matchIndexList := this.searcSentence(sentence)
+	matchIndexList := a.searcSentence(sentence)
 	if len(matchIndexList) == 0 {
 		return sentence1
 	}
@@ -180,18 +180,18 @@ func (this *DFAUtil) HandleWord(sentence string, replaceCh rune) string {
 // Create new DfaUtil object
 // wordList:word list
 func NewDFAUtil(wordList []string) *DFAUtil {
-	this := &DFAUtil{
+	a := &DFAUtil{
 		root: newtrieNode(),
 	}
 
 	for _, word := range wordList {
 		wordRuneList := []rune(word)
 		if len(wordRuneList) > 0 {
-			this.insertWord(wordRuneList)
+			a.insertWord(wordRuneList)
 		}
 	}
 
-	return this
+	return a
 }
 
 func DFAInsertWord(dfa *DFAUtil, wordList []string) {

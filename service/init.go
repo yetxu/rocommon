@@ -80,11 +80,11 @@ func Init(name string) {
 	}
 
 	//是否需要连接redis数据库
-	if len(serviceConfig.Redis.RedisAddr) > 0 {
-		redisConnector = NewNetRedisConnector(serviceConfig.Redis.RedisAddr,
-			serviceConfig.Redis.Password,
-			serviceConfig.Redis.DBIndex,
-			serviceConfig.Redis.RedisCluster)
+	if len(serviceConfig.DB.RedisAddr) > 0 {
+		redisConnector = NewNetRedisConnector(serviceConfig.DB.RedisAddr,
+			serviceConfig.DB.Password,
+			serviceConfig.DB.DBIndex,
+			serviceConfig.DB.RedisCluster)
 		redisConnector.SetName(serviceName)
 		_, err := redisConnector.RedisCli().Ping().Result()
 		if err != nil {
@@ -93,9 +93,9 @@ func Init(name string) {
 		util.InfoF("redisconnector success...")
 	}
 	//mysql
-	if serviceConfig.Redis.MysqlAddr != "" {
+	if serviceConfig.DB.MysqlAddr != "" {
 		mysqlConnector = socket.NewServerNode("mysqlConnector", name,
-			serviceConfig.Redis.MysqlAddr, nil).(*mysql.MysqlConnector)
+			serviceConfig.DB.MysqlAddr, nil).(*mysql.MysqlConnector)
 		mysqlConnector.Start()
 		if mysqlConnector.IsReady() {
 			util.InfoF("mysqlConnector connect success...")
@@ -104,7 +104,7 @@ func Init(name string) {
 		}
 
 		mysqlOrmConnector = socket.NewServerNode("MysqlOrmConnector", name,
-			serviceConfig.Redis.MysqlAddr, nil).(*mysql.MysqlOrmConnector)
+			serviceConfig.DB.MysqlAddr, nil).(*mysql.MysqlOrmConnector)
 		mysqlOrmConnector.Start()
 		if mysqlOrmConnector.IsReady() {
 			util.InfoF("mysqlOrmConnector connect success...")

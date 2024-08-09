@@ -24,37 +24,37 @@ type tcpAcceptor struct {
 }
 
 // //interface ServerNode
-func (this *tcpAcceptor) Start() rocommon.ServerNode {
+func (a *tcpAcceptor) Start() rocommon.ServerNode {
 	//正在停止先等待
-	this.StopWg.Wait()
+	a.StopWg.Wait()
 	//防止重入导致错误
-	if this.GetRuneState() {
-		return this
+	if a.GetRuneState() {
+		return a
 	}
 
 	//https://github.com/gogf/greuse/blob/master/greuse.go
 
 	var listenCfg = net.ListenConfig{Control: nil}
 
-	ln, err := listenCfg.Listen(context.Background(), "tcp", this.GetAddr())
-	//ln, err := net.Listen("tcp", this.GetAddr())
+	ln, err := listenCfg.Listen(context.Background(), "tcp", a.GetAddr())
+	//ln, err := net.Listen("tcp", a.GetAddr())
 	if err != nil {
 		util.PanicF("tcpAcceptor listen failure=%v", err)
 	}
 
-	this.listener = ln
-	util.InfoF("tcpAcceptor listen success=%v", this.GetAddr())
+	a.listener = ln
+	util.InfoF("tcpAcceptor listen success=%v", a.GetAddr())
 
-	go this.tcpAccept()
-	return this
+	go a.tcpAccept()
+	return a
 }
 
-func (this *tcpAcceptor) tcpAccept() {
-	this.SetRuneState(true)
+func (a *tcpAcceptor) tcpAccept() {
+	a.SetRuneState(true)
 	for {
-		conn, err := this.listener.Accept()
+		conn, err := a.listener.Accept()
 		//结束中
-		if this.GetCloseFlag() {
+		if a.GetCloseFlag() {
 			break
 		}
 		if err != nil {
@@ -68,39 +68,39 @@ func (this *tcpAcceptor) tcpAccept() {
 			break
 		}
 		//util.DebugF("accept ok:%v", conn)
-		this.SocketOpt(conn) //option 设置
+		a.SocketOpt(conn) //option 设置
 		func() {
-			session := newTcpSession(conn, this, nil)
+			session := newTcpSession(conn, a, nil)
 			//util.InfoF("[tcpAcceptor] accept session:start:%v", session)
 			session.Start()
 			//通知上层事件(这边的回调要放到队列中，否则会有多线程冲突)
-			this.ProcEvent(&rocommon.RecvMsgEvent{Sess: session, Message: &rocommon.SessionAccepted{}})
+			a.ProcEvent(&rocommon.RecvMsgEvent{Sess: session, Message: &rocommon.SessionAccepted{}})
 		}()
 	}
-	this.SetRuneState(false)
-	this.SetCloseFlag(false)
-	this.StopWg.Done()
+	a.SetRuneState(false)
+	a.SetCloseFlag(false)
+	a.StopWg.Done()
 }
 
-func (this *tcpAcceptor) Stop() {
-	if !this.GetRuneState() {
+func (a *tcpAcceptor) Stop() {
+	if !a.GetRuneState() {
 		return
 	}
 
-	this.StopWg.Add(1)
-	this.SetCloseFlag(true)
-	this.listener.Close()
+	a.StopWg.Add(1)
+	a.SetCloseFlag(true)
+	a.listener.Close()
 	//关闭当前监听服务器的所有连接
-	this.CloseAllSession()
+	a.CloseAllSession()
 	//等待协程结束
-	this.StopWg.Wait()
+	a.StopWg.Wait()
 }
 
-func (this *tcpAcceptor) CloseAllSession() {
+func (a *tcpAcceptor) CloseAllSession() {
 
 }
 
-func (this *tcpAcceptor) TypeOfName() string {
+func (a *tcpAcceptor) TypeOfName() string {
 	return "tcpAcceptor"
 }
 

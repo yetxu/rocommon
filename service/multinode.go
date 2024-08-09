@@ -24,23 +24,23 @@ func NewMultiServerNode() *netServerNode {
 	return m
 }
 
-func (this *netServerNode) GetNode(serviceId string) rocommon.ServerNode {
-	this.RLock()
-	defer this.RUnlock()
-	if node, ok := this.nodeList[serviceId]; ok {
+func (a *netServerNode) GetNode(serviceId string) rocommon.ServerNode {
+	a.RLock()
+	defer a.RUnlock()
+	if node, ok := a.nodeList[serviceId]; ok {
 		return node
 	}
 	return nil
 }
 
-func (this *netServerNode) RemoveNode(serviceId string) {
-	this.Lock()
-	defer this.Unlock()
-	delete(this.nodeList, serviceId)
+func (a *netServerNode) RemoveNode(serviceId string) {
+	a.Lock()
+	defer a.Unlock()
+	delete(a.nodeList, serviceId)
 }
 
-func (this *netServerNode) AddNode(desc *ETCDServiceDesc, node rocommon.ServerNode) {
-	this.Lock()
-	this.nodeList[desc.ID] = node
-	this.Unlock()
+func (a *netServerNode) AddNode(desc *ETCDServiceDesc, node rocommon.ServerNode) {
+	a.Lock()
+	a.nodeList[desc.ID] = node
+	a.Unlock()
 }

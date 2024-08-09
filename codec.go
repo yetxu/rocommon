@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/golang/protobuf/proto"
 	"io"
 	"io/ioutil"
 	"log"
@@ -13,6 +12,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/golang/protobuf/proto"
 )
 
 type Codec interface {
@@ -54,31 +55,31 @@ func GetHttpCodec(codecName string) Codec {
 	return httpCodec
 }
 
-//pbCodec
+// pbCodec
 type pbCodec struct {
 }
 
-func (this *pbCodec) TypeOfName() string {
+func (a *pbCodec) TypeOfName() string {
 	return "protobuf"
 }
-func (this *pbCodec) Marshal(msg interface{}) (interface{}, error) {
+func (a *pbCodec) Marshal(msg interface{}) (interface{}, error) {
 	return proto.Marshal(msg.(proto.Message))
 }
-func (this *pbCodec) Unmarshal(data interface{}, msg interface{}) error {
+func (a *pbCodec) Unmarshal(data interface{}, msg interface{}) error {
 	return proto.Unmarshal(data.([]byte), msg.(proto.Message))
 }
 
-//http json
+// http json
 type httpJsonCodec struct {
 }
 
-func (this *httpJsonCodec) TypeOfName() string {
+func (a *httpJsonCodec) TypeOfName() string {
 	return "httpjson"
 }
-func (this *httpJsonCodec) MimeType() string {
+func (a *httpJsonCodec) MimeType() string {
 	return "application/json"
 }
-func (this *httpJsonCodec) Marshal(msg interface{}) (interface{}, error) {
+func (a *httpJsonCodec) Marshal(msg interface{}) (interface{}, error) {
 	httpData, err := json.Marshal(msg)
 	if err != nil {
 		return nil, err
@@ -87,7 +88,7 @@ func (this *httpJsonCodec) Marshal(msg interface{}) (interface{}, error) {
 
 	return bytes.NewReader(httpData), nil
 }
-func (this *httpJsonCodec) Unmarshal(data interface{}, msg interface{}) error {
+func (a *httpJsonCodec) Unmarshal(data interface{}, msg interface{}) error {
 	var reader io.Reader
 	switch v := data.(type) {
 	case *http.Request:
@@ -103,22 +104,22 @@ func (this *httpJsonCodec) Unmarshal(data interface{}, msg interface{}) error {
 	return json.Unmarshal(body, msg)
 }
 
-//httpForm
+// httpForm
 const defaultMemory = 32 * 1024 * 1024
 
 type httpFormCodec struct {
 }
 
-func (this *httpFormCodec) TypeOfName() string {
+func (a *httpFormCodec) TypeOfName() string {
 	return "httpform"
 }
-func (this *httpFormCodec) MimeType() string {
+func (a *httpFormCodec) MimeType() string {
 	return "application/x-www-form-urlencoded"
 }
-func (this *httpFormCodec) Marshal(msg interface{}) (interface{}, error) {
-	return strings.NewReader(this.form2UrlValues(msg).Encode()), nil
+func (a *httpFormCodec) Marshal(msg interface{}) (interface{}, error) {
+	return strings.NewReader(a.form2UrlValues(msg).Encode()), nil
 }
-func (this *httpFormCodec) Unmarshal(data interface{}, msg interface{}) error {
+func (a *httpFormCodec) Unmarshal(data interface{}, msg interface{}) error {
 	//todo...
 	/*
 		var reader io.Reader
@@ -158,7 +159,7 @@ func (this *httpFormCodec) Unmarshal(data interface{}, msg interface{}) error {
 		msgValue.Field(0).SetString(string(body))
 	}
 
-	//msg = this.value2String(string(body))
+	//msg = a.value2String(string(body))
 
 	//
 	//resp := data.(*http.Request)
@@ -171,7 +172,7 @@ func (this *httpFormCodec) Unmarshal(data interface{}, msg interface{}) error {
 
 	return nil
 }
-func (this *httpFormCodec) form2UrlValues(obj interface{}) url.Values {
+func (a *httpFormCodec) form2UrlValues(obj interface{}) url.Values {
 	objValue := reflect.Indirect(reflect.ValueOf(obj))
 	objType := reflect.TypeOf(obj)
 
@@ -180,12 +181,12 @@ func (this *httpFormCodec) form2UrlValues(obj interface{}) url.Values {
 		field := objType.Field(i)
 		val := objValue.Field(i)
 		//if field {
-		formValues.Add(field.Name, this.value2String(val.Interface()))
+		formValues.Add(field.Name, a.value2String(val.Interface()))
 		//}
 	}
 	return formValues
 }
-func (this *httpFormCodec) value2String(value interface{}) string {
+func (a *httpFormCodec) value2String(value interface{}) string {
 	switch v := value.(type) {
 	case string:
 		return v
@@ -206,7 +207,7 @@ func (this *httpFormCodec) value2String(value interface{}) string {
 	}
 }
 
-/////////////////////
+// ///////////////////
 type MessageInfo struct {
 	Codec        Codec
 	Type         reflect.Type

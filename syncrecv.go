@@ -11,34 +11,34 @@ type NetSyncRecv struct {
 }
 
 func NewNetSyncRecv(node ServerNode) *NetSyncRecv {
-	this := &NetSyncRecv{
+	a := &NetSyncRecv{
 		eventCh: make(chan ProcEvent),
 	}
-	this.cb = func(ev ProcEvent) {
-		this.eventCh <- ev
+	a.cb = func(ev ProcEvent) {
+		a.eventCh <- ev
 	}
-	return this
+	return a
 }
 
-func (this *NetSyncRecv) EventCB() EventCallBack {
-	return this.cb
+func (a *NetSyncRecv) EventCB() EventCallBack {
+	return a.cb
 }
 
-func (this *NetSyncRecv) Recv(cb EventCallBack) *NetSyncRecv {
-	cb(<-this.eventCh)
-	return this
+func (a *NetSyncRecv) Recv(cb EventCallBack) *NetSyncRecv {
+	cb(<-a.eventCh)
+	return a
 }
 
-func (this *NetSyncRecv) WaitMsg(msg interface{}) {
+func (a *NetSyncRecv) WaitMsg(msg interface{}) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	this.Recv(func(ev ProcEvent) {
+	a.Recv(func(ev ProcEvent) {
 		//msgType := reflect.TypeOf(msg)
 		switch ev.Msg().(type) {
 		case *SessionConnected:
 			msg = ev.Msg()
-			this.sess = ev.Session()
+			a.sess = ev.Session()
 			wg.Done()
 		}
 	})
@@ -46,6 +46,6 @@ func (this *NetSyncRecv) WaitMsg(msg interface{}) {
 	return
 }
 
-func (this *NetSyncRecv) Session() Session {
-	return this.sess
+func (a *NetSyncRecv) Session() Session {
+	return a.sess
 }

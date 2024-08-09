@@ -1,10 +1,11 @@
 package socket
 
 import (
-	"github.com/gorilla/websocket"
 	"math"
 	"net"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 type SocketOption interface {
@@ -25,17 +26,17 @@ type NetTCPSocketOption struct {
 	maxMsgLen int
 }
 
-func (this *NetTCPSocketOption) Init() {
+func (a *NetTCPSocketOption) Init() {
 	//todo...
-	this.maxMsgLen = 1024 * 4 * 10 //40k(发送和接受字节最大数量)
+	a.maxMsgLen = 1024 * 4 * 10 //40k(发送和接受字节最大数量)
 }
 
-func (this *NetTCPSocketOption) WriteTimeout() time.Duration {
-	return this.writeTimeout
+func (a *NetTCPSocketOption) WriteTimeout() time.Duration {
+	return a.writeTimeout
 }
 
-func (this *NetTCPSocketOption) ReadTimeout() time.Duration {
-	return this.readTimeout
+func (a *NetTCPSocketOption) ReadTimeout() time.Duration {
+	return a.readTimeout
 }
 
 func (op *NetTCPSocketOption) SocketOpt(c net.Conn) {
@@ -65,7 +66,7 @@ func (op *NetTCPSocketOption) SetMaxMsgLen(size int) {
 	op.maxMsgLen = size
 }
 
-//http://blog.sina.com.cn/s/blog_9be3b8f10101lhiq.html
+// http://blog.sina.com.cn/s/blog_9be3b8f10101lhiq.html
 func (op *NetTCPSocketOption) SocketReadTimeout(c net.Conn, callback func()) {
 	if op.readTimeout > 0 {
 		c.SetReadDeadline(time.Now().Add(op.readTimeout))

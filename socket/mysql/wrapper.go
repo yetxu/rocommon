@@ -15,59 +15,59 @@ type Wrapper struct {
 
 var ErrDriverNotReady = errors.New("driver not ready")
 
-func (this *Wrapper) Query(query string, args ...interface{}) *Wrapper {
-	if this.drv == nil {
-		this.Err = ErrDriverNotReady
-		return this
+func (a *Wrapper) Query(query string, args ...interface{}) *Wrapper {
+	if a.drv == nil {
+		a.Err = ErrDriverNotReady
+		return a
 	}
 
-	this.query = query
-	this.row, this.Err = this.drv.Query(query, args...)
+	a.query = query
+	a.row, a.Err = a.drv.Query(query, args...)
 
-	//log.Println("rows=", this.row)
+	//log.Println("rows=", a.row)
 
-	return this
+	return a
 }
 
-func (this *Wrapper) Execute(query string, args ...interface{}) *Wrapper {
-	if this.drv == nil {
-		this.Err = ErrDriverNotReady
-		return this
+func (a *Wrapper) Execute(query string, args ...interface{}) *Wrapper {
+	if a.drv == nil {
+		a.Err = ErrDriverNotReady
+		return a
 	}
 
-	this.query = query
-	_, this.Err = this.drv.Exec(query, args...)
+	a.query = query
+	_, a.Err = a.drv.Exec(query, args...)
 
-	return this
+	return a
 }
 
-func (this *Wrapper) Each(cb func(wrapper *Wrapper) bool) *Wrapper {
-	if this.Err != nil {
-		return this
+func (a *Wrapper) Each(cb func(wrapper *Wrapper) bool) *Wrapper {
+	if a.Err != nil {
+		return a
 	}
-	if this.drv == nil {
-		this.Err = ErrDriverNotReady
-		return this
+	if a.drv == nil {
+		a.Err = ErrDriverNotReady
+		return a
 	}
 
-	for this.row.Next() {
-		if !cb(this) {
+	for a.row.Next() {
+		if !cb(a) {
 			break
 		}
 
-		if this.Err != nil {
-			return this
+		if a.Err != nil {
+			return a
 		}
 	}
 
-	this.row.Close()
-	return this
+	a.row.Close()
+	return a
 }
 
-func (this *Wrapper) Scan(dest ...interface{}) error {
-	this.Err = this.row.Scan(dest...)
-	if this.Err != nil {
-		return this.Err
+func (a *Wrapper) Scan(dest ...interface{}) error {
+	a.Err = a.row.Scan(dest...)
+	if a.Err != nil {
+		return a.Err
 	}
 	return nil
 }

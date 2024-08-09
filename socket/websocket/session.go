@@ -41,70 +41,70 @@ type wsSession struct {
 	sendQueueMaxLen int
 }
 
-func (this *wsSession) GetSessionOpt() interface{} {
-	return &this.sessionOpt
+func (a *wsSession) GetSessionOpt() interface{} {
+	return &a.sessionOpt
 }
-func (this *wsSession) GetSessionOptFlag() bool {
-	this.optMutex.RLock()
-	defer this.optMutex.RUnlock()
+func (a *wsSession) GetSessionOptFlag() bool {
+	a.optMutex.RLock()
+	defer a.optMutex.RUnlock()
 
-	return this.sessionOptFlag
+	return a.sessionOptFlag
 }
-func (this *wsSession) SetSessionOptFlag(flag bool) {
-	this.optMutex.Lock()
-	defer this.optMutex.Unlock()
+func (a *wsSession) SetSessionOptFlag(flag bool) {
+	a.optMutex.Lock()
+	defer a.optMutex.Unlock()
 
-	this.sessionOptFlag = flag
-}
-
-func (this *wsSession) setConn(c *websocket.Conn) {
-	this.Lock()
-	defer this.Unlock()
-	this.conn = c
+	a.sessionOptFlag = flag
 }
 
-func (this *wsSession) GetConn() *websocket.Conn {
-	this.Lock()
-	defer this.Unlock()
-	return this.conn
+func (a *wsSession) setConn(c *websocket.Conn) {
+	a.Lock()
+	defer a.Unlock()
+	a.conn = c
 }
 
-func (this *wsSession) Raw() interface{} {
-	return this.GetConn()
+func (a *wsSession) GetConn() *websocket.Conn {
+	a.Lock()
+	defer a.Unlock()
+	return a.conn
 }
 
-func (this *wsSession) Node() rocommon.ServerNode {
-	return this.node
+func (a *wsSession) Raw() interface{} {
+	return a.GetConn()
 }
 
-func (this *wsSession) GetAES() *[]byte {
-	this.aesMutex.RLock()
-	defer this.aesMutex.RUnlock()
-	return &this.aesStr
+func (a *wsSession) Node() rocommon.ServerNode {
+	return a.node
 }
 
-func (this *wsSession) SetAES(aes string) {
-	this.aesMutex.Lock()
-	defer this.aesMutex.Unlock()
-	this.aesStr = []byte(aes)
+func (a *wsSession) GetAES() *[]byte {
+	a.aesMutex.RLock()
+	defer a.aesMutex.RUnlock()
+	return &a.aesStr
+}
+
+func (a *wsSession) SetAES(aes string) {
+	a.aesMutex.Lock()
+	defer a.aesMutex.Unlock()
+	a.aesStr = []byte(aes)
 	//log.Println("SetAES:", aes)
 }
 
-func (this *wsSession) GetHandCode() string {
-	this.handCodeMutex.RLock()
-	defer this.handCodeMutex.RUnlock()
-	return this.handCodeStr
+func (a *wsSession) GetHandCode() string {
+	a.handCodeMutex.RLock()
+	defer a.handCodeMutex.RUnlock()
+	return a.handCodeStr
 }
 
-func (this *wsSession) SetHandCode(code string) {
-	this.handCodeMutex.Lock()
-	defer this.handCodeMutex.Unlock()
-	this.handCodeStr = code
+func (a *wsSession) SetHandCode(code string) {
+	a.handCodeMutex.Lock()
+	defer a.handCodeMutex.Unlock()
+	a.handCodeStr = code
 	//log.Println("SetAES:", aes)
 }
-func (this *wsSession) IncRecvPingNum(incNum int) {
+func (a *wsSession) IncRecvPingNum(incNum int) {
 }
-func (this *wsSession) RecvPingNum() int {
+func (a *wsSession) RecvPingNum() int {
 	return 0
 }
 
@@ -115,50 +115,50 @@ var sendQueuePool = sync.Pool{
 	},
 }
 
-func (this *wsSession) Start() {
-	atomic.StoreInt64(&this.closeInt, 0)
+func (a *wsSession) Start() {
+	atomic.StoreInt64(&a.closeInt, 0)
 
 	//重置发送队列
-	this.sendQueueMaxLen = sendQueueMaxLen
-	if this.node.(rocommon.ServerNodeProperty).GetName() == "gate" {
-		this.sendQueueMaxLen = 200
+	a.sendQueueMaxLen = sendQueueMaxLen
+	if a.node.(rocommon.ServerNodeProperty).GetName() == "gate" {
+		a.sendQueueMaxLen = 200
 	}
-	this.sendQueue = make(chan interface{}, this.sendQueueMaxLen+1)
-	//this.sendQueue = make(chan interface{}, 32) //todo..暂时默认发送队列长度2000
-	//this.sendQueue = make(chan interface{}, sendQueueMaxLen+1) //todo..暂时默认发送队列长度2000
-	//this.sendQueue = sendQueuePool.Get().(chan interface{})
+	a.sendQueue = make(chan interface{}, a.sendQueueMaxLen+1)
+	//a.sendQueue = make(chan interface{}, 32) //todo..暂时默认发送队列长度2000
+	//a.sendQueue = make(chan interface{}, sendQueueMaxLen+1) //todo..暂时默认发送队列长度2000
+	//a.sendQueue = sendQueuePool.Get().(chan interface{})
 
-	this.exitWg.Add(2)
-	//this.node tcpAcceptor
-	this.node.(socket.SessionManager).Add(this) //添加到session管理器中
-	if this.node.TypeOfName() == "wsAcceptor" {
+	a.exitWg.Add(2)
+	//a.node tcpAcceptor
+	a.node.(socket.SessionManager).Add(a) //添加到session管理器中
+	if a.node.TypeOfName() == "wsAcceptor" {
 
-		//log.Println("sessionMagNum:", this.node.(socket.SessionManager).SessionNum())
+		//log.Println("sessionMagNum:", a.node.(socket.SessionManager).SessionNum())
 	}
 	go func() {
-		this.exitWg.Wait()
+		a.exitWg.Wait()
 		//结束操作处理
-		close(this.sendQueue)
-		//sendQueuePool.Put(this.sendQueue)
+		close(a.sendQueue)
+		//sendQueuePool.Put(a.sendQueue)
 
-		this.node.(socket.SessionManager).Remove(this)
-		if this.endCallback != nil {
-			this.endCallback()
+		a.node.(socket.SessionManager).Remove(a)
+		if a.endCallback != nil {
+			a.endCallback()
 		}
 		//debug.FreeOSMemory()
 	}()
 
-	go this.RunRecv()
-	go this.RunSend()
+	go a.RunRecv()
+	go a.RunSend()
 }
 
-func (this *wsSession) Close() {
+func (a *wsSession) Close() {
 	//已经关闭
-	if ok := atomic.SwapInt64(&this.closeInt, 1); ok != 0 {
+	if ok := atomic.SwapInt64(&a.closeInt, 1); ok != 0 {
 		return
 	}
 
-	conn := this.GetConn()
+	conn := a.GetConn()
 	if conn != nil {
 		//conn.Close()
 		//关闭读
@@ -168,36 +168,36 @@ func (this *wsSession) Close() {
 	//util.InfoF("close session")
 }
 
-func (this *wsSession) Send(msg interface{}) {
+func (a *wsSession) Send(msg interface{}) {
 	//已经关闭
-	if atomic.LoadInt64(&this.closeInt) != 0 {
+	if atomic.LoadInt64(&a.closeInt) != 0 {
 		return
 	}
 
-	//this.sendQueue <- msg
+	//a.sendQueue <- msg
 
-	sendLen := len(this.sendQueue)
+	sendLen := len(a.sendQueue)
 	if sendLen < sendQueueMaxLen {
-		this.sendQueue <- msg
+		a.sendQueue <- msg
 		return
 	}
-	util.ErrorF("SendLen-sendQueue=%v addr=%v", sendLen, this.conn.LocalAddr())
+	util.ErrorF("SendLen-sendQueue=%v addr=%v", sendLen, a.conn.LocalAddr())
 }
 
 // 服务器进程之前启用ping操作
-func (this *wsSession) HeartBeat(msg interface{}) {
+func (a *wsSession) HeartBeat(msg interface{}) {
 	//已经关闭
-	if atomic.LoadInt64(&this.closeInt) != 0 {
+	if atomic.LoadInt64(&a.closeInt) != 0 {
 		return
 	}
 }
 
-func (this *wsSession) RunRecv() {
+func (a *wsSession) RunRecv() {
 	// util.DebugF("start RunRecv goroutine")
 	defer func() {
 		//打印奔溃信息
 		//if err := recover(); err != nil {
-		//	this.onError(err)
+		//	a.onError(err)
 		//}
 		//util.InfoF("Stack---:\n%s\n", string(debug.Stack()))
 		//打印堆栈信息
@@ -207,39 +207,39 @@ func (this *wsSession) RunRecv() {
 	}()
 
 	for {
-		msg, seqId, err := this.ReadMsg(this) //procrpc.go
+		msg, seqId, err := a.ReadMsg(a) //procrpc.go
 		if err != nil {
 			util.ErrorF("Readmsg-RunRecv error=%v", err)
 
 			//这边需要加锁，避免主线程继续在closInt还未设置成断开时还继续往session写数据，导致多线程冲突
-			//this.Lock()
+			//a.Lock()
 			//做关闭处理，发送数据时已经无法进行发送
-			atomic.StoreInt64(&this.closeInt, 1)
-			//close(this.sendQueue) //用来退出写协程
-			this.sendQueue <- nil //用来退出写协程
-			//this.Unlock()
+			atomic.StoreInt64(&a.closeInt, 1)
+			//close(a.sendQueue) //用来退出写协程
+			a.sendQueue <- nil //用来退出写协程
+			//a.Unlock()
 
 			//抛出错误事件
-			this.ProcEvent(&rocommon.RecvMsgEvent{Sess: this, Message: &rocommon.SessionClosed{}, Err: err})
+			a.ProcEvent(&rocommon.RecvMsgEvent{Sess: a, Message: &rocommon.SessionClosed{}, Err: err})
 
 			//todo...或者通过关闭sendQueue来实现关闭
 			break
 		}
 		//接收数据事件放到队列中(需要放到队列中，否则会有线程冲突)
-		this.ProcEvent(&rocommon.RecvMsgEvent{Sess: this, Message: msg, Err: nil, MsgSeqId: seqId, KvTime: util.GetTimeMilliseconds()})
-		//this.ProcEvent(&rocommon.RecvMsgEvent{Sess: this, Message: msg, Err: nil, MsgSeqId: seqId})
+		a.ProcEvent(&rocommon.RecvMsgEvent{Sess: a, Message: msg, Err: nil, MsgSeqId: seqId, KvTime: util.GetTimeMilliseconds()})
+		//a.ProcEvent(&rocommon.RecvMsgEvent{Sess: a, Message: msg, Err: nil, MsgSeqId: seqId})
 	}
 
-	util.DebugF("exit RunRecv goroutine addr=%v", this.conn.LocalAddr())
-	this.exitWg.Done()
+	util.DebugF("exit RunRecv goroutine addr=%v", a.conn.LocalAddr())
+	a.exitWg.Done()
 }
 
-func (this *wsSession) RunSend() {
+func (a *wsSession) RunSend() {
 	//util.DebugF("start RunSend goroutine")
 	defer func() {
 		//打印奔溃信息
 		//if err := recover(); err != nil {
-		//	this.onError(err)
+		//	a.onError(err)
 		//}
 		//util.InfoF("Stack---:\n%s\n", string(debug.Stack()))
 		//打印堆栈信息
@@ -249,25 +249,25 @@ func (this *wsSession) RunSend() {
 	}()
 
 	//放到另外的队列中
-	for data := range this.sendQueue {
+	for data := range a.sendQueue {
 		if data == nil {
 			break
 		}
-		err := this.SendMsg(&rocommon.SendMsgEvent{Sess: this, Message: data})
-		//err := this.SendMsg(this, data) //procrpc.go
+		err := a.SendMsg(&rocommon.SendMsgEvent{Sess: a, Message: data})
+		//err := a.SendMsg(a, data) //procrpc.go
 		if err != nil {
 			util.ErrorF("SendMsg RunSend error %v", err)
 			break
 		}
 	}
 
-	util.DebugF("exit RunSend goroutine addr=%v", this.conn.LocalAddr())
-	c := this.GetConn()
+	util.DebugF("exit RunSend goroutine addr=%v", a.conn.LocalAddr())
+	c := a.GetConn()
 	if c != nil {
 		c.Close()
 	}
 
-	this.exitWg.Done()
+	a.exitWg.Done()
 }
 
 ///////////////////////

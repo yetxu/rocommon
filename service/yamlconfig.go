@@ -42,8 +42,8 @@ type ConfigServerNode struct {
 	Node configServerNode `yaml:"node"`
 	//服务器对外开放端口(一般gate使用)
 	Acceptor configServerAcceptor `yaml:"acceptor"`
-	//redis连接使用
-	Redis configServerDB `yaml:"db"`
+	//DB连接使用
+	DB configServerDB `yaml:"db"`
 	//elastic
 	Elastic configElastic `yaml:"elastic"`
 	//SDK
@@ -138,6 +138,6 @@ type configSDK struct {
 	YouYiGameIdListIOS []string `yaml:"youyigameidlistios"`
 }
 
-func (this *ConfigServerNode) Error() string {
-	return fmt.Sprintf("%+v", *this)
+func (a *ConfigServerNode) Error() string {
+	return fmt.Sprintf("%+v", *a)
 }

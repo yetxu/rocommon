@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-//定时器接口
+// 定时器接口
 type ServerTimer interface {
 	//测试是否过期
 	IsExpired(ms uint64) bool
@@ -40,7 +40,7 @@ func GetLoc() *time.Location {
 	return gameLoc
 }
 
-//return ms
+// return ms
 func GetCurrentTime() uint64 {
 	t1 := GetCurrentTimeNow()
 	return uint64(t1.UnixNano() / 1e6)
@@ -126,7 +126,7 @@ func GetDayAndHourByTime(timeStr string) (time.Time, time.Time) {
 	return d, h
 }
 
-//获取最近一天5点更新时间(结束时间戳)
+// 获取最近一天5点更新时间(结束时间戳)
 func GetLatest5Hour() uint64 {
 	loc := GetLoc()
 	nowTime := GetCurrentTimeNow()
@@ -148,7 +148,7 @@ func GetLatest5Hour() uint64 {
 	}
 }
 
-//获取最近周一5点更新时间(结束时间戳)
+// 获取最近周一5点更新时间(结束时间戳)
 func GetLatestWeek5Hour(ms uint64) uint64 {
 	loc := GetLoc()
 	nowTime := GetCurrentTimeNow()
@@ -186,8 +186,8 @@ func GetLatestMonth5Hour() uint64 {
 	}
 
 	//如果是一个月的1号5点之后
-	thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
-	nextMonth := thisMonth.AddDate(0, 1, 0)
+	aMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+	nextMonth := aMonth.AddDate(0, 1, 0)
 	dayTimeStr := nextMonth.Format(DATE_FORMAT1)
 
 	tempDayTime, _ := time.ParseInLocation(DATE_FORMAT1, dayTimeStr, loc)
@@ -195,7 +195,7 @@ func GetLatestMonth5Hour() uint64 {
 	return uint64(tempDayTime.UnixNano() / 1e6)
 }
 
-//获取两个时间的持续天数
+// 获取两个时间的持续天数
 func GetDurationDay(t1, t2 string) int64 {
 	loc := GetLoc()
 	t1DayStr := GetDayByTimeStr(t1)
@@ -206,7 +206,7 @@ func GetDurationDay(t1, t2 string) int64 {
 	return eTime1.Unix() - sTime1.Unix()
 }
 
-//t1, t2 (ms) t2 > t1
+// t1, t2 (ms) t2 > t1
 func GetDurationDay1(t1, t2 uint64) int32 {
 	loc := GetLoc()
 	tmpT1 := GetTimeByUint64(t1)
@@ -219,7 +219,7 @@ func GetDurationDay1(t1, t2 uint64) int32 {
 	return int32(dayT2.Sub(dayT1).Hours() / 24)
 }
 
-//以5点位分割线 t2 > t1
+// 以5点位分割线 t2 > t1
 func GetDurationDay2(t1, t2 uint64) int32 {
 	loc := GetLoc()
 	tmpT1 := GetTimeByUint64(t1)
@@ -240,7 +240,7 @@ func GetDurationDay2(t1, t2 uint64) int32 {
 	return deltaDay
 }
 
-//t1 < t2
+// t1 < t2
 func IsInSameWeek(t1, t2 uint64) bool {
 	if t2 < t1 {
 		return false
@@ -261,38 +261,38 @@ type baseTimer struct {
 	resetTime uint64 //剩余时间 暂停后会用到
 }
 
-func (this *baseTimer) Cancel() {
-	this.cancel = true
-	this.ts = 0
-	this.duration = 0
-	this.suspend = false
-	this.resetTime = 0
+func (a *baseTimer) Cancel() {
+	a.cancel = true
+	a.ts = 0
+	a.duration = 0
+	a.suspend = false
+	a.resetTime = 0
 }
 
-func (this *baseTimer) Canceled() bool {
-	return this.cancel
+func (a *baseTimer) Canceled() bool {
+	return a.cancel
 }
 
-func (this *baseTimer) Suspend() {
-	this.suspend = true
-	deltaT := this.duration - (GetCurrentTime() - this.ts)
-	if deltaT >= this.duration {
-		this.resetTime = 0
+func (a *baseTimer) Suspend() {
+	a.suspend = true
+	deltaT := a.duration - (GetCurrentTime() - a.ts)
+	if deltaT >= a.duration {
+		a.resetTime = 0
 	} else {
-		this.resetTime = this.duration - this.ts
+		a.resetTime = a.duration - a.ts
 	}
 }
 
-func (this *baseTimer) Resume() {
-	this.suspend = false
-	this.ts = GetCurrentTime()
+func (a *baseTimer) Resume() {
+	a.suspend = false
+	a.ts = GetCurrentTime()
 }
 
-func (this *baseTimer) IsStart() bool {
-	return this.ts != 0
+func (a *baseTimer) IsStart() bool {
+	return a.ts != 0
 }
 
-//只运行一次的定时器
+// 只运行一次的定时器
 type OnceTimer struct {
 	baseTimer
 }
@@ -310,29 +310,29 @@ func NewOnceTimer(ms uint64, duration time.Duration) ServerTimer {
 	return t
 }
 
-func (this *OnceTimer) IsExpired(ms uint64) bool {
-	if this.cancel || this.suspend {
+func (a *OnceTimer) IsExpired(ms uint64) bool {
+	if a.cancel || a.suspend {
 		return false
 	}
 
-	if this.resetTime > 0 {
-		if (this.ts + this.resetTime) < ms {
-			this.resetTime = 0
+	if a.resetTime > 0 {
+		if (a.ts + a.resetTime) < ms {
+			a.resetTime = 0
 			return true
 		} else {
 			return false
 		}
 	}
-	return (this.ts + this.duration) < ms
+	return (a.ts + a.duration) < ms
 }
 
-func (this *OnceTimer) Reset(ms uint64, duration time.Duration, fireNow bool) {
-	this.ts = ms
-	this.duration = uint64(duration)
-	this.cancel = false
+func (a *OnceTimer) Reset(ms uint64, duration time.Duration, fireNow bool) {
+	a.ts = ms
+	a.duration = uint64(duration)
+	a.cancel = false
 }
 
-//运行无限次定时器
+// 运行无限次定时器
 type DurationTimer struct {
 	baseTimer
 	fireNow      bool  //建立后可以立即被触发无论是否过期
@@ -354,35 +354,35 @@ func NewDurationTimer(ms uint64, duration time.Duration) ServerTimer {
 	return t
 }
 
-func (this *DurationTimer) IsExpired(ms uint64) bool {
-	if this.cancel || this.suspend {
+func (a *DurationTimer) IsExpired(ms uint64) bool {
+	if a.cancel || a.suspend {
 		return false
 	}
 
-	if this.resetTime > 0 {
-		if (this.ts + this.resetTime) < ms {
-			this.resetTime = 0
-			this.Reset(ms, time.Duration(this.duration), true)
+	if a.resetTime > 0 {
+		if (a.ts + a.resetTime) < ms {
+			a.resetTime = 0
+			a.Reset(ms, time.Duration(a.duration), true)
 			return true
 		} else {
 			return false
 		}
 	}
-	ret := (this.ts + this.duration) < ms
+	ret := (a.ts + a.duration) < ms
 	if ret {
-		this.expiredTimes++
-		this.ts = ms
+		a.expiredTimes++
+		a.ts = ms
 	}
-	if this.fireNow {
-		this.fireNow = false
+	if a.fireNow {
+		a.fireNow = false
 		return true
 	}
 	return ret
 }
 
-func (this *DurationTimer) Reset(ms uint64, duration time.Duration, fireNow bool) {
-	this.ts = ms
-	this.duration = uint64(duration)
-	this.cancel = false
-	this.fireNow = fireNow
+func (a *DurationTimer) Reset(ms uint64, duration time.Duration, fireNow bool) {
+	a.ts = ms
+	a.duration = uint64(duration)
+	a.cancel = false
+	a.fireNow = fireNow
 }

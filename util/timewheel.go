@@ -4,7 +4,7 @@ import (
 	"container/list"
 )
 
-//	https://github.com/ouqiang/timewheel/blob/master/timewheel.go
+// https://github.com/ouqiang/timewheel/blob/master/timewheel.go
 type TimeWheel struct {
 	interval uint64
 	//tick     *time.Ticker
@@ -34,7 +34,7 @@ type TWTask struct {
 	Repeated     bool
 }
 
-//	interval ms
+// interval ms
 func NewTimeWheel(interval uint64, slotNum int) *TimeWheel {
 	if interval <= 0 {
 		return nil
@@ -51,37 +51,37 @@ func NewTimeWheel(interval uint64, slotNum int) *TimeWheel {
 	return tw
 }
 
-func (this *TimeWheel) initSlots() {
-	for idx := 0; idx < this.slotNum; idx++ {
-		this.slots[idx] = list.New()
+func (a *TimeWheel) initSlots() {
+	for idx := 0; idx < a.slotNum; idx++ {
+		a.slots[idx] = list.New()
 	}
 }
 
-//func (this *TimeWheel) Start() {
-//	//this.tick = time.NewTicker(this.interval)
-//	//this.Start()
+//func (a *TimeWheel) Start() {
+//	//a.tick = time.NewTicker(a.interval)
+//	//a.Start()
 //}
 
-func (this *TimeWheel) Update(ms uint64) {
-	if this.oldMs <= 0 {
-		this.oldMs = ms
+func (a *TimeWheel) Update(ms uint64) {
+	if a.oldMs <= 0 {
+		a.oldMs = ms
 		return
 	}
 	for {
-		if this.oldMs > ms {
-			this.oldMs = ms
+		if a.oldMs > ms {
+			a.oldMs = ms
 		}
-		delaTime := ms - this.oldMs
-		if delaTime < this.interval {
+		delaTime := ms - a.oldMs
+		if delaTime < a.interval {
 			return
 		}
-		this.oldMs += this.interval
-		this.update(ms)
+		a.oldMs += a.interval
+		a.update(ms)
 	}
 }
 
-func (this *TimeWheel) update(ms uint64) {
-	slotIdxList := this.slots[this.currentIdx]
+func (a *TimeWheel) update(ms uint64) {
+	slotIdxList := a.slots[a.currentIdx]
 	for item := slotIdxList.Front(); item != nil; {
 		task := item.Value.(*TWTask)
 		if task.circle > 0 {
@@ -89,59 +89,59 @@ func (this *TimeWheel) update(ms uint64) {
 			item = item.Next()
 			continue
 		}
-		this.Callback(task, ms)
+		a.Callback(task, ms)
 		next := item.Next()
 		if task.Key != nil {
-			delete(this.timer, task.Key)
+			delete(a.timer, task.Key)
 			//添加到新的槽位节点上，继续触发事件
 			slotIdxList.Remove(item)
 			if task.Repeated {
-				this.AddTask(task)
+				a.AddTask(task)
 			}
 		}
 		item = next
 	}
 
-	if this.currentIdx >= this.slotNum-1 {
-		this.currentIdx = 0
+	if a.currentIdx >= a.slotNum-1 {
+		a.currentIdx = 0
 	} else {
-		this.currentIdx++
+		a.currentIdx++
 	}
 }
 
-func (this *TimeWheel) AddTask(task *TWTask) bool {
-	_, ok := this.timer[task.Key]
+func (a *TimeWheel) AddTask(task *TWTask) bool {
+	_, ok := a.timer[task.Key]
 	if ok {
 		return false
 	}
 
-	idx, circle := this.getIdxAndCircle(task.Delay)
+	idx, circle := a.getIdxAndCircle(task.Delay)
 	task.circle = circle
 
-	this.slots[idx].PushBack(task)
+	a.slots[idx].PushBack(task)
 	if task.Key != nil {
-		this.timer[task.Key] = idx
+		a.timer[task.Key] = idx
 	}
 	return true
 }
 
-func (this *TimeWheel) getIdxAndCircle(taskDuration uint64) (int, int) {
-	tmpVal := int(taskDuration / this.interval)
-	circle := int(tmpVal / this.slotNum)
-	idx := (this.currentIdx + tmpVal) % this.slotNum
+func (a *TimeWheel) getIdxAndCircle(taskDuration uint64) (int, int) {
+	tmpVal := int(taskDuration / a.interval)
+	circle := int(tmpVal / a.slotNum)
+	idx := (a.currentIdx + tmpVal) % a.slotNum
 	return idx, circle
 }
 
-func (this *TimeWheel) RemoveTask(key interface{}) {
-	idx, ok := this.timer[key]
+func (a *TimeWheel) RemoveTask(key interface{}) {
+	idx, ok := a.timer[key]
 	if !ok {
 		return
 	}
-	slotIdxList := this.slots[idx]
+	slotIdxList := a.slots[idx]
 	for item := slotIdxList.Front(); item != nil; {
 		task := item.Value.(*TWTask)
 		if task.Key == key {
-			delete(this.timer, task.Key)
+			delete(a.timer, task.Key)
 			slotIdxList.Remove(item)
 		}
 		item = item.Next()

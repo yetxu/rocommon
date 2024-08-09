@@ -31,93 +31,93 @@ type tcpWebSocketAcceptor struct {
 	sv       *http.Server
 }
 
-func (this *tcpWebSocketAcceptor) TypeOfName() string {
+func (a *tcpWebSocketAcceptor) TypeOfName() string {
 	return "wsAcceptor"
 }
 
-func (this *tcpWebSocketAcceptor) SetHttps(certfile, keyfile string) {
-	this.certfile = certfile
-	this.keyfile = keyfile
+func (a *tcpWebSocketAcceptor) SetHttps(certfile, keyfile string) {
+	a.certfile = certfile
+	a.keyfile = keyfile
 }
 
-func (this *tcpWebSocketAcceptor) Start() rocommon.ServerNode {
+func (a *tcpWebSocketAcceptor) Start() rocommon.ServerNode {
 	//正在停止先等待
-	this.StopWg.Wait()
+	a.StopWg.Wait()
 	//防止重入导致错误
-	if this.GetRuneState() {
-		return this
+	if a.GetRuneState() {
+		return a
 	}
 
 	//https://github.com/gogf/greuse/blob/master/greuse.go
 	var listenCfg = net.ListenConfig{Control: nil}
-	ln, err := listenCfg.Listen(context.Background(), "tcp", this.GetAddr())
-	//ln, err := net.Listen("tcp", this.GetAddr())
+	ln, err := listenCfg.Listen(context.Background(), "tcp", a.GetAddr())
+	//ln, err := net.Listen("tcp", a.GetAddr())
 	if err != nil {
 		util.PanicF("webSocketAcceptor listen failure=%v", err)
 	}
 
-	this.listener = ln
-	util.InfoF("webSocketAcceptor listen success=%v", this.GetAddr())
+	a.listener = ln
+	util.InfoF("webSocketAcceptor listen success=%v", a.GetAddr())
 
 	//process
 	//结束中
-	if this.GetCloseFlag() {
-		return this
+	if a.GetCloseFlag() {
+		return a
 	}
-	this.SetRuneState(true)
+	a.SetRuneState(true)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		conn, err := this.upgrader.Upgrade(w, r, nil)
+		conn, err := a.upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			util.InfoF("[webSocketAcceptor] accept err=%v", err)
 			return
 		}
 
-		this.SocketOptWebSocket(conn) //option 设置
-		session := newWebSocketSession(conn, this, nil)
+		a.SocketOptWebSocket(conn) //option 设置
+		session := newWebSocketSession(conn, a, nil)
 		session.SetContextData("request", r, "newWebSocketSession") //获取request相关信息
 		//util.InfoF("[tcpAcceptor] accept session:start:%v", session)
 		session.Start()
 		//通知上层事件(这边的回调要放到队列中，否则会有多线程冲突)
-		this.ProcEvent(&rocommon.RecvMsgEvent{Sess: session, Message: &rocommon.SessionAccepted{}})
+		a.ProcEvent(&rocommon.RecvMsgEvent{Sess: session, Message: &rocommon.SessionAccepted{}})
 	})
 
-	this.sv = &http.Server{Addr: this.GetAddr(), Handler: mux}
+	a.sv = &http.Server{Addr: a.GetAddr(), Handler: mux}
 	go func() {
-		util.InfoF("ws.listen(%s) %s", this.GetName(), this.GetAddr())
+		util.InfoF("ws.listen(%s) %s", a.GetName(), a.GetAddr())
 
-		if this.certfile != "" && this.keyfile != "" {
-			err = this.sv.ServeTLS(this.listener, this.certfile, this.keyfile)
+		if a.certfile != "" && a.keyfile != "" {
+			err = a.sv.ServeTLS(a.listener, a.certfile, a.keyfile)
 		} else {
-			err = this.sv.Serve(this.listener)
+			err = a.sv.Serve(a.listener)
 		}
 
 		//服务关闭时会打印
 		if err != nil {
-			util.ErrorF("ws.listen. failed(%s) %v", this.GetName(), err.Error())
+			util.ErrorF("ws.listen. failed(%s) %v", a.GetName(), err.Error())
 		}
 
-		this.SetRuneState(false)
-		this.SetCloseFlag(false)
-		this.StopWg.Done()
+		a.SetRuneState(false)
+		a.SetCloseFlag(false)
+		a.StopWg.Done()
 	}()
 
-	return this
+	return a
 }
 
-func (this *tcpWebSocketAcceptor) Stop() {
-	if !this.GetRuneState() {
+func (a *tcpWebSocketAcceptor) Stop() {
+	if !a.GetRuneState() {
 		return
 	}
 
-	this.StopWg.Add(1)
-	this.SetCloseFlag(true)
-	this.listener.Close()
+	a.StopWg.Add(1)
+	a.SetCloseFlag(true)
+	a.listener.Close()
 	//关闭当前监听服务器的所有连接
-	this.CloseAllSession()
+	a.CloseAllSession()
 	//等待协程结束
-	this.StopWg.Wait()
+	a.StopWg.Wait()
 }
 
 func init() {

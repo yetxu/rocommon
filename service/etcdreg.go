@@ -302,13 +302,13 @@ func NewNetServiceDiscovery(addr string) (*ServiceDiscovery, error) {
 	}
 }
 
-func (this *ServiceDiscovery) Close() {
-	this.EtcdCli.Close()
+func (a *ServiceDiscovery) Close() {
+	a.EtcdCli.Close()
 }
 
-func (this *ServiceDiscovery) RegisterWithTimeOut(key string, value string) int64 {
+func (a *ServiceDiscovery) RegisterWithTimeOut(key string, value string) int64 {
 	//获得lease数据
-	leaseRsp, err := this.EtcdCli.Grant(context.TODO(), 3)
+	leaseRsp, err := a.EtcdCli.Grant(context.TODO(), 3)
 	if err != nil {
 		util.PanicF("etcd grant falied=%v", err)
 		//log.Fatalf("etcd grant falied:%v\n", err)
@@ -316,16 +316,16 @@ func (this *ServiceDiscovery) RegisterWithTimeOut(key string, value string) int6
 	}
 	ctx, cancel := context.WithTimeout(context.TODO(), 3*time.Second)
 	defer cancel()
-	rsp, err := this.EtcdKV.Put(ctx, key, value, clientv3.WithLease(leaseRsp.ID))
+	rsp, err := a.EtcdKV.Put(ctx, key, value, clientv3.WithLease(leaseRsp.ID))
 	if err != nil {
 		//util.PanicF("etcd put key failed=%v\n", err)
 		util.FatalF("etcd put key failed:%v\n", err)
 		return 0
 	} else {
-		util.InfoF("etcd register ok key=%v clusterid=%v leaseid=%v etcdaddr=%v", key, rsp.Header.ClusterId, leaseRsp.ID, this.etcdConfig.Endpoints)
+		util.InfoF("etcd register ok key=%v clusterid=%v leaseid=%v etcdaddr=%v", key, rsp.Header.ClusterId, leaseRsp.ID, a.etcdConfig.Endpoints)
 		//log.Printf("etcd register server:%v clusterid:%v", key, rsp.Header.ClusterId)
 	}
-	_, err = this.EtcdCli.KeepAlive(context.TODO(), leaseRsp.ID)
+	_, err = a.EtcdCli.KeepAlive(context.TODO(), leaseRsp.ID)
 	if err != nil {
 		util.PanicF("etcd put key failed=%v\n", err)
 	}
@@ -334,14 +334,14 @@ func (this *ServiceDiscovery) RegisterWithTimeOut(key string, value string) int6
 
 // watch自己，网络恢复后得到自己被删除的通知，重新设置key租约
 // WatchSelf只重新设置lease，不做其他操作(key只是自己)
-func (this *ServiceDiscovery) WatchSelf(key string, value ETCDServiceDesc) {
+func (a *ServiceDiscovery) WatchSelf(key string, value ETCDServiceDesc) {
 	//调试模式下不生效
 	if DebugMode {
 		util.InfoF("DebugMode=%v WatchSelf Invalid", DebugMode)
 		return
 	}
 	//watch自己，网络恢复后得到自己被删除的通知，重新设置key租约
-	keepaliveWatch := this.EtcdCli.Watch(context.TODO(), key)
+	keepaliveWatch := a.EtcdCli.Watch(context.TODO(), key)
 	go func() {
 		for {
 			select {
@@ -349,9 +349,9 @@ func (this *ServiceDiscovery) WatchSelf(key string, value ETCDServiceDesc) {
 				for _, ev := range c.Events {
 					switch ev.Type {
 					case mvccpb.DELETE:
-						util.InfoF("etcd WatchSelf del-self key=%v etcdaddr=%v", key, this.etcdConfig.Endpoints)
+						util.InfoF("etcd WatchSelf del-self key=%v etcdaddr=%v", key, a.etcdConfig.Endpoints)
 						value.RegTime = util.GetTimeSeconds()
-						this.RegisterWithTimeOut(key, value.String())
+						a.RegisterWithTimeOut(key, value.String())
 					}
 				}
 			}
@@ -359,8 +359,8 @@ func (this *ServiceDiscovery) WatchSelf(key string, value ETCDServiceDesc) {
 	}()
 }
 
-func (this *ServiceDiscovery) WatchKey(key string) {
-	keepaliveWatch := this.EtcdCli.Watch(context.TODO(), key)
+func (a *ServiceDiscovery) WatchKey(key string) {
+	keepaliveWatch := a.EtcdCli.Watch(context.TODO(), key)
 	go func() {
 		for {
 			select {
@@ -368,7 +368,7 @@ func (this *ServiceDiscovery) WatchKey(key string) {
 				for _, ev := range c.Events {
 					switch ev.Type {
 					case mvccpb.DELETE:
-						util.InfoF("etcd WatchKey del key=%v etcdaddr=%v", key, this.etcdConfig.Endpoints)
+						util.InfoF("etcd WatchKey del key=%v etcdaddr=%v", key, a.etcdConfig.Endpoints)
 					}
 				}
 			}
@@ -376,8 +376,8 @@ func (this *ServiceDiscovery) WatchKey(key string) {
 	}()
 }
 
-func (this *ServiceDiscovery) Del(key string) bool {
-	_, err := this.EtcdCli.Delete(context.TODO(), key)
+func (a *ServiceDiscovery) Del(key string) bool {
+	_, err := a.EtcdCli.Delete(context.TODO(), key)
 	if err != nil {
 		util.FatalF("etcd del key failed:%v", key)
 		return false
@@ -385,8 +385,8 @@ func (this *ServiceDiscovery) Del(key string) bool {
 	return true
 }
 
-func (this *ServiceDiscovery) Register(key string, value string) {
-	rsp, err := this.EtcdKV.Put(context.TODO(), key, value)
+func (a *ServiceDiscovery) Register(key string, value string) {
+	rsp, err := a.EtcdKV.Put(context.TODO(), key, value)
 	if err != nil {
 		util.PanicF("etcd put key failed:%v\n", err)
 		//log.Fatalf("etcd put key failed:%v\n", err)
@@ -399,33 +399,33 @@ func (this *ServiceDiscovery) Register(key string, value string) {
 
 // 上报自己服务器当前的状态，供其它进程获取(例如获取当前地图线路情况)
 // leaseId < 0 表示不带lease的key更新
-func (this *ServiceDiscovery) UpdateStateToETCD(key, val string, leaseId int64) int64 {
+func (a *ServiceDiscovery) UpdateStateToETCD(key, val string, leaseId int64) int64 {
 	ctx, cancel := context.WithTimeout(context.TODO(), 3*time.Second)
 	defer cancel()
 
 	if leaseId >= 0 {
 		if clientv3.LeaseID(leaseId) == clientv3.NoLease {
-			leaseId = this.RegisterWithTimeOut(key, val)
+			leaseId = a.RegisterWithTimeOut(key, val)
 			util.InfoF("UpdateStateToETCD first key=%v leaseid=%v", key, leaseId)
 			return leaseId
 		}
 
 		//查看lease是否过期
-		_, err := this.EtcdKV.Put(ctx, key, val, clientv3.WithLease(clientv3.LeaseID(leaseId)))
+		_, err := a.EtcdKV.Put(ctx, key, val, clientv3.WithLease(clientv3.LeaseID(leaseId)))
 		if err != nil {
 			util.FatalF("UpdateStateToETCD etcd update key failed:%v\n", err)
 			//重新申请lease并注册
-			leaseId = this.RegisterWithTimeOut(key, val)
+			leaseId = a.RegisterWithTimeOut(key, val)
 		} else {
-			//util.InfoF("UpdateStateToETCD etcd update ok key=%v clusterid=%v leaseId=%v etcdaddr=%v", key, rsp.Header.ClusterId, leaseId, this.etcdConfig.Endpoints)
+			//util.InfoF("UpdateStateToETCD etcd update ok key=%v clusterid=%v leaseId=%v etcdaddr=%v", key, rsp.Header.ClusterId, leaseId, a.etcdConfig.Endpoints)
 			//log.Printf("etcd register server:%v clusterid:%v", key, rsp.Header.ClusterId)
 		}
 	} else {
-		_, err := this.EtcdKV.Put(ctx, key, val)
+		_, err := a.EtcdKV.Put(ctx, key, val)
 		if err != nil {
 			util.FatalF("UpdateStateToETCD etcd update key failed:%v\n", err)
 		} else {
-			//util.InfoF("UpdateStateToETCD etcd update ok key=%v clusterid=%v etcdaddr=%v", key, rsp.Header.ClusterId, this.etcdConfig.Endpoints)
+			//util.InfoF("UpdateStateToETCD etcd update ok key=%v clusterid=%v etcdaddr=%v", key, rsp.Header.ClusterId, a.etcdConfig.Endpoints)
 			//log.Printf("etcd register server:%v clusterid:%v", key, rsp.Header.ClusterId)
 		}
 	}
