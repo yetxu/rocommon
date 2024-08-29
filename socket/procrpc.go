@@ -244,7 +244,7 @@ func (a *TCPMessageProcessor) OnRecvMsg(s rocommon.Session) (msg interface{}, ms
 var tmpClient = []byte("client")
 
 func (a *TCPMessageProcessor) OnSendMsg(s rocommon.Session, msg interface{}) (err error) {
-	util.InfoF("[TCPMessageProcessor] OnSendMsg session=%v msg=%v", s, msg)
+	//util.InfoF("[TCPMessageProcessor] OnSendMsg session=%v msg=%v", s, msg)
 	//todo...
 	writer, ok := s.Raw().(io.Writer)
 	if !ok || writer == nil {
