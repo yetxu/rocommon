@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	"github.com/yetxu/rocommon"
 	"github.com/yetxu/rocommon/socket"
 	"github.com/yetxu/rocommon/util"
@@ -65,9 +66,16 @@ func (mysqltor *MysqlConnector) tryConnect() {
 
 	db.SetMaxIdleConns(mysqltor.PoolConnCount)
 	//db.SetMaxIdleConns(int(a.PoolConnCount))
+	dbx := sqlx.NewDb(db, "mysql")
+	dbx.MapperFunc(util.LowerCaseWithUnderscores)
 
 	mysqltor.dbMutex.Lock()
 	mysqltor.db = db
+
+	pool := &MysqlPool{db, dbx}
+	if GMysqlPool == nil {
+		GMysqlPool = pool
+	}
 	mysqltor.dbMutex.Unlock()
 }
 func (mysqltor *MysqlConnector) Start() rocommon.ServerNode {
