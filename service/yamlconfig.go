@@ -85,8 +85,9 @@ type configServerNode struct {
 	//账号验证模式1:PC模式，不做任何处理 2:激活码模式 3:第三方平台验证模式SDK
 	AuthMode int `yaml:"authmode"`
 	//1:机器人模式 2:无法注册 3:关闭付费功能
-	RobotMode int    `yaml:"robotmode"`
-	HttpAddr  string `yaml:"httpaddr"` //gmweb服务器http监听端口
+	RobotMode  int    `yaml:"robotmode"`
+	HttpAddr   string `yaml:"httpaddr"`   //gmweb服务器http监听端口
+	SwaggerUrl string `yaml:"swaggerurl"` //swagger文档地址
 	//gm白名单
 	WhiteListGM []string `yaml:"whitelist,flow"`
 }
